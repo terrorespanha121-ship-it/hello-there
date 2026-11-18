@@ -18,7 +18,7 @@ const STARS = Array.from({ length: 110 }, () => ({
   delay: rng() * 5,
 }));
 
-const MOON_LOGO_URL = "/__l5e/assets-v1/6af370fc-a2ff-4c2a-a4fc-ac9c69a1a267/moon-logo.jpg";
+const MOON_LOGO_URL = "/images/moon-logo.jpg";
 
 interface CosmicShellProps {
   children: ReactNode;

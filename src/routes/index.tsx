@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CosmicShell, GoldButton } from "../components/CosmicShell";
 
-const READER_PORTRAIT_URL = "/__l5e/assets-v1/90a0e306-dc8a-4478-a307-73f2fd1cd1ca/reader-portrait.jpg";
+const READER_PORTRAIT_URL = "/images/reader-portrait.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,

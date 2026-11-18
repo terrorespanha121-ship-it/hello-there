@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CosmicShell } from "../components/CosmicShell";
 
@@ -26,17 +26,78 @@ export const Route = createFileRoute("/reading")({
 const VTURB_PLAYER_ID = "vid-6ae8d8bab850e26f93ec425d";
 const VTURB_SCRIPT_URL =
   "https://scripts.converteai.net/b19b3a18-f0ae-4145-b71e-287227ee922b/players/6ae8d8bab850e26f93ec425d/v4/player.js";
+const HLS_STREAM_URL =
+  "https://cdn.converteai.net/b19b3a18-f0ae-4145-b71e-287227ee922b/6ae8d8b2c7321bec2b42a664/main.m3u8";
+const POSTER_IMAGE = "/images/poster.jpg";
+const CHECKOUT_URL = "https://pay.cakto.com.br/35bnw5j_1281465";
 
 const VTURB_HTML = `<vturb-smartplayer id="${VTURB_PLAYER_ID}" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>`;
 
-function VturbVideoPlayer() {
+declare global {
+  interface Window {
+    Hls?: any;
+  }
+}
+
+function VideoPlayer() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [useFallback, setUseFallback] = useState(false);
+
   useEffect(() => {
-    if (document.querySelector(`script[src="${VTURB_SCRIPT_URL}"]`)) return;
-    const script = document.createElement("script");
-    script.src = VTURB_SCRIPT_URL;
-    script.async = true;
-    document.head.appendChild(script);
+    // Attempt loading VTurb official script
+    if (!document.querySelector(`script[src="${VTURB_SCRIPT_URL}"]`)) {
+      const script = document.createElement("script");
+      script.src = VTURB_SCRIPT_URL;
+      script.async = true;
+      script.onerror = () => setUseFallback(true);
+      document.head.appendChild(script);
+    }
+
+    // Safety fallback: if VTurb is blocked or fails inside an iframe
+    const fallbackTimer = setTimeout(() => {
+      const el = document.getElementById(VTURB_PLAYER_ID);
+      const isRendered = el && (el.shadowRoot || el.querySelector("video") || el.children.length > 1);
+      if (!isRendered) {
+        setUseFallback(true);
+      }
+    }, 2800);
+
+    return () => clearTimeout(fallbackTimer);
   }, []);
+
+  useEffect(() => {
+    if (useFallback && videoRef.current) {
+      const video = videoRef.current;
+      if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = HLS_STREAM_URL;
+      } else {
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
+        script.onload = () => {
+          if (window.Hls && window.Hls.isSupported()) {
+            const hls = new window.Hls();
+            hls.loadSource(HLS_STREAM_URL);
+            hls.attachMedia(video);
+          }
+        };
+        document.head.appendChild(script);
+      }
+    }
+  }, [useFallback]);
+
+  if (useFallback) {
+    return (
+      <div className="relative mx-auto w-full max-w-[400px] overflow-hidden border border-gold/30 bg-black shadow-gold-soft">
+        <video
+          ref={videoRef}
+          controls
+          playsInline
+          poster={POSTER_IMAGE}
+          className="aspect-[3/4] h-auto w-full object-cover"
+        />
+      </div>
+    );
+  }
 
   return <div className="w-full" dangerouslySetInnerHTML={{ __html: VTURB_HTML }} />;
 }
@@ -44,23 +105,23 @@ function VturbVideoPlayer() {
 const AUTHORS: Record<string, { name: string; avatar: string }> = {
   jessica: {
     name: "Jessica M.",
-    avatar: "/__l5e/assets-v1/46d63a98-72b3-47de-adc5-39901854707f/avatar-jessica.jpg",
+    avatar: "/images/avatar-jessica.jpg",
   },
   patricia: {
     name: "Patricia L.",
-    avatar: "/__l5e/assets-v1/30dceb62-0e99-4fe7-b48d-7c4a471e2c8a/avatar-patricia.jpg",
+    avatar: "/images/avatar-patricia.jpg",
   },
   marcus: {
     name: "Marcus T.",
-    avatar: "/__l5e/assets-v1/6e333781-49e7-4083-acd5-cf3ab13af4c5/avatar-marcus.jpg",
+    avatar: "/images/avatar-marcus.jpg",
   },
   samantha: {
     name: "Samantha R.",
-    avatar: "/__l5e/assets-v1/dc512f46-4b4e-4ff2-a5ad-837ae5427be3/avatar-samantha.jpg",
+    avatar: "/images/avatar-samantha.jpg",
   },
   robert: {
     name: "Robert K.",
-    avatar: "/__l5e/assets-v1/04cdd2f0-87af-4be1-aa69-879e3559f8aa/avatar-robert.jpg",
+    avatar: "/images/avatar-robert.jpg",
   },
 };
 
@@ -227,7 +288,18 @@ function ReadingPage() {
       </h1>
 
       <div className="mt-12 w-full max-w-[400px]">
-        <VturbVideoPlayer />
+        <VideoPlayer />
+      </div>
+
+      <div className="mt-8 flex w-full justify-center">
+        <a
+          href={CHECKOUT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-16 w-full max-w-[448px] items-center justify-center text-[15px] font-medium uppercase tracking-[0.04em] text-primary-foreground shadow-cta bg-gold-gradient transition-transform hover:scale-[1.015]"
+        >
+          Destravar Minha Leitura Completa →
+        </a>
       </div>
 
       <div className="mt-16 flex w-full items-center gap-4">

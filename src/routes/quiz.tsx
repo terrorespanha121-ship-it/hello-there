@@ -88,10 +88,10 @@ const QUESTIONS: Question[] = [
   },
 ];
 
-const CARD_BACK = "/__l5e/assets-v1/45b768b7-cd6c-4df4-9433-464f6d2ea36a/card-back.jpg";
-const CARD_WHEEL = "/__l5e/assets-v1/03cd2bc4-1680-4e7c-b1a1-44e8bb0b8508/card-wheel.jpg";
-const CARD_FOOL = "/__l5e/assets-v1/b444ddea-83e3-4f39-a299-bd60a4f5a3e4/card-fool.jpg";
-const CARD_TOWER = "/__l5e/assets-v1/629f2434-e403-432d-aad9-099efcce6693/card-tower.jpg";
+const CARD_BACK = "/images/card-back.jpg";
+const CARD_WHEEL = "/images/card-wheel.jpg";
+const CARD_FOOL = "/images/card-fool.jpg";
+const CARD_TOWER = "/images/card-tower.jpg";
 
 const REVEALED_CARDS = ["The Wheel of Fortune", "The Fool", "The Tower"];
 const CARD_IMAGES: Record<string, string> = {
