@@ -153,7 +153,7 @@ function QuizPage() {
           <QuestionStep
             key={stepKey}
             index={step.index}
-            question={QUESTIONS[step.index]}
+            question={QUESTIONS[step.index]!}
             onStart={startMusic}
             onAnswer={() =>
               transitionTo(
