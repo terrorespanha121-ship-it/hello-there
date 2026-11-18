@@ -1,23 +1,48 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { CosmicShell, GoldButton } from "../components/CosmicShell";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const READER_PORTRAIT_URL = "/__l5e/assets-v1/90a0e306-dc8a-4478-a307-73f2fd1cd1ca/reader-portrait.jpg";
+
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const navigate = useNavigate();
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <CosmicShell>
+      <h1 className="fade-in mt-9 text-center font-display text-[2.15rem] leading-[1.2] text-foreground sm:text-[3.1rem]">
+        <span className="text-gold">Discover for free</span>
+        <br />
+        what the cards are about to
+        <br className="hidden sm:block" /> reveal about your life
+      </h1>
+
+      <p className="mt-5 max-w-[448px] text-center text-base font-light leading-[2.25] text-foreground/75">
+        The cards of the sacred golden deck can reveal the exact path to remove the blocks in your life.
+      </p>
+
+      <div className="mt-11 w-full max-w-[448px] border border-gold/10 p-1.5">
+        <img
+          src={READER_PORTRAIT_URL}
+          alt="Tarot reader with three cards on the table"
+          width={434}
+          height={455}
+          className="block h-auto w-full"
+        />
+      </div>
+
+      <GoldButton
+        className="mt-12"
+        onClick={() => navigate({ to: "/quiz" })}
+      >
+        Start my free reading →
+      </GoldButton>
+
+      <p className="mt-4 text-center text-[13px] uppercase tracking-[0.28em] text-gold">
+        100% free · No sign-up · Takes 2 minutes
+      </p>
+    </CosmicShell>
   );
 }
