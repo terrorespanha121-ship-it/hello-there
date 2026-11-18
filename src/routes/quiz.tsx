@@ -258,87 +258,100 @@ function QuestionStep({
   };
 
   return (
-    <Fragment>
-      <ProgressBar value={calculateProgress(index)} className="mt-12" />
+    <div className="fixed inset-0 z-50 flex justify-center bg-background">
+      <div className="fade-in relative h-full w-full max-w-[480px] overflow-hidden">
+        <video
+          ref={videoRef}
+          src={VSL_VIDEOS[index]}
+          poster="/images/reader-portrait.jpg"
+          playsInline
+          preload="auto"
+          onEnded={() => setShowOptions(true)}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background/80 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-background via-background/80 to-transparent" />
 
-      <div className="fade-in flex w-full flex-col items-center">
-        <div className="relative mt-10 w-full max-w-[448px] overflow-hidden border border-gold/20 p-1.5 shadow-option">
-          <video
-            ref={videoRef}
-            src={VSL_VIDEOS[index]}
-            poster="/images/reader-portrait.jpg"
-            playsInline
-            preload="auto"
-            onEnded={() => setShowOptions(true)}
-            className="block aspect-[651/682] h-auto w-full object-cover"
-          />
-          {!started && (
-            <button
-              type="button"
-              onClick={() => {
-                setStarted(true);
-                onStart();
-              }}
-              className="absolute inset-1.5 flex flex-col items-center justify-center gap-3 bg-background/55 font-display text-xl text-gold backdrop-blur-[2px] cursor-pointer"
-            >
-              <span className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/70 text-2xl">▶</span>
-              Tap to hear your reader
-            </button>
-          )}
-          {started && (
-            <button
-              type="button"
-              onClick={toggleMute}
-              aria-label={muted ? "Unmute" : "Mute"}
-              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/70 text-lg cursor-pointer"
-            >
-              {muted ? "🔇" : "🔊"}
-            </button>
-          )}
-          {started && !showOptions && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-background/70 px-4 py-1.5 text-[12px] uppercase tracking-[0.25em] text-gold">
-              Speaking <span className="animate-pulse">•••</span>
-            </div>
-          )}
+        <div className="absolute inset-x-0 top-0 px-5 pr-16 pt-4">
+          <div className="mb-1 flex justify-between text-xs text-gold">
+            <span className="italic text-foreground/70">Your energy is aligning...</span>
+            <span>{calculateProgress(index)}%</span>
+          </div>
+          <div className="h-1 w-full rounded-full bg-foreground/15">
+            <div
+              className="h-full rounded-full bg-gold shadow-[0_0_8px_var(--gold)] transition-[width] duration-700"
+              style={{ width: `${calculateProgress(index)}%` }}
+            />
+          </div>
         </div>
 
+        {started && (
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={muted ? "Unmute" : "Mute"}
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-background/70 text-lg cursor-pointer"
+          >
+            {muted ? "🔇" : "🔊"}
+          </button>
+        )}
+
+        {!started && (
+          <button
+            type="button"
+            onClick={() => {
+              setStarted(true);
+              onStart();
+            }}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/50 font-display text-xl text-gold backdrop-blur-[2px] cursor-pointer"
+          >
+            <span className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/70 text-2xl">▶</span>
+            Tap to hear your reader
+          </button>
+        )}
+
+        {started && !showOptions && (
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap font-display text-sm uppercase tracking-[0.25em] text-gold">
+            Your reader is speaking <span className="animate-pulse">•••</span>
+          </div>
+        )}
+
         {showOptions && (
-          <div className="fade-in flex w-full flex-col items-center">
-            <h1 className="mt-8 max-w-[632px] whitespace-pre-line text-center font-display text-[1.5rem] leading-[1.5] text-foreground sm:text-[1.8rem]">
-              <HighlightedTitle parts={question.title} />
-            </h1>
-            <div className="mt-8 flex w-full max-w-[632px] flex-col gap-4">
-              {question.options.map((opt, optIdx) => {
-                const isChosen = selected === optIdx;
-                const isFaded = selected !== null && !isChosen;
-                return (
-                  <button
-                    key={opt.text}
-                    type="button"
-                    onClick={() => handleClick(optIdx)}
-                    style={{ animationDelay: `${optIdx * 120}ms` }}
-                    className={`fade-in flex w-full items-center gap-4 border bg-foreground/[0.025] px-5 text-left text-base text-foreground/90 transition-all duration-300 cursor-pointer ${
-                      opt.emoji ? "min-h-[89px] py-4" : "min-h-[70px] py-4"
-                    } ${
-                      isChosen
-                        ? "border-gold/80 text-foreground shadow-option"
-                        : "border-foreground/10 hover:border-gold/70"
-                    } ${isFaded ? "opacity-40" : "opacity-100"}`}
-                  >
-                    {opt.emoji && (
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-foreground/10 bg-background/60 text-[22px]">
-                        {opt.emoji}
-                      </span>
-                    )}
-                    <span>{opt.text}</span>
-                  </button>
-                );
-              })}
+          <div className="absolute inset-x-0 bottom-0 max-h-[70%] overflow-y-auto px-4 pb-6">
+            <div className="fade-in flex flex-col items-center">
+              {question.kicker && (
+                <span className="mb-2 rounded-full border border-gold/50 px-3 py-0.5 text-xs uppercase tracking-wider text-foreground/80">
+                  {question.kicker}
+                </span>
+              )}
+              <h1 className="whitespace-pre-line text-center font-display text-[1.25rem] font-semibold leading-snug text-foreground">
+                <HighlightedTitle parts={question.title} />
+              </h1>
+              <div className="mt-4 flex w-full flex-col gap-2.5">
+                {question.options.map((opt, optIdx) => {
+                  const isChosen = selected === optIdx;
+                  const isFaded = selected !== null && !isChosen;
+                  return (
+                    <button
+                      key={opt.text}
+                      type="button"
+                      onClick={() => handleClick(optIdx)}
+                      style={{ animationDelay: `${optIdx * 120}ms` }}
+                      className={`fade-in flex w-full items-center gap-3 rounded-xl border bg-background/70 px-4 py-3 text-left text-sm text-foreground backdrop-blur-sm transition-all duration-300 cursor-pointer ${
+                        isChosen ? "border-gold shadow-option" : "border-gold/40 hover:border-gold"
+                      } ${isFaded ? "opacity-40" : "opacity-100"}`}
+                    >
+                      {opt.emoji && <span className="text-xl">{opt.emoji}</span>}
+                      <span>{opt.text}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
       </div>
-    </Fragment>
+    </div>
   );
 }
 
