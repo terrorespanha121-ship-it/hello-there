@@ -1,6 +1,14 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CosmicShell, GoldButton } from "../components/CosmicShell";
+import vslQ1 from "@/assets/vsl-q1.mp4.asset.json";
+import vslQ2 from "@/assets/vsl-q2.mp4.asset.json";
+import vslQ3 from "@/assets/vsl-q3.mp4.asset.json";
+import vslQ4 from "@/assets/vsl-q4.mp4.asset.json";
+import vslQ5 from "@/assets/vsl-q5.mp4.asset.json";
+import ambientMusic from "@/assets/ambient_acoustic.mp3.asset.json";
+
+const VSL_VIDEOS = [vslQ1.url, vslQ2.url, vslQ3.url, vslQ4.url, vslQ5.url];
 
 export const Route = createFileRoute("/quiz")({
   head: () => ({
@@ -113,6 +121,19 @@ function calculateProgress(index: number) {
 function QuizPage() {
   const [step, setStep] = useState<QuizStep>({ kind: "question", index: 0 });
   const [fading, setFading] = useState(false);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+
+  const startMusic = () => {
+    if (!musicRef.current) {
+      const a = new Audio(ambientMusic.url);
+      a.loop = true;
+      a.volume = 0.12;
+      musicRef.current = a;
+    }
+    musicRef.current.play().catch(() => {});
+  };
+
+  useEffect(() => () => musicRef.current?.pause(), []);
 
   const transitionTo = (nextStep: QuizStep) => {
     setFading(true);
@@ -133,6 +154,7 @@ function QuizPage() {
             key={stepKey}
             index={step.index}
             question={QUESTIONS[step.index]}
+            onStart={startMusic}
             onAnswer={() =>
               transitionTo(
                 step.index + 1 < QUESTIONS.length
@@ -197,12 +219,29 @@ function QuestionStep({
   index,
   question,
   onAnswer,
+  onStart,
 }: {
   index: number;
   question: Question;
   onAnswer: () => void;
+  onStart: () => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
+  const [started, setStarted] = useState(index > 0);
+  const [showOptions, setShowOptions] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !started) return;
+    v.muted = false;
+    v.play().catch(() => {
+      v.muted = true;
+      setMuted(true);
+      v.play().catch(() => {});
+    });
+  }, [started]);
 
   const handleClick = (optIndex: number) => {
     if (selected === null) {
@@ -211,59 +250,93 @@ function QuestionStep({
     }
   };
 
+  const toggleMute = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+  };
+
   return (
     <Fragment>
       <ProgressBar value={calculateProgress(index)} className="mt-12" />
 
       <div className="fade-in flex w-full flex-col items-center">
-        {question.kicker && (
-          <p className="mt-14 text-center text-[13px] uppercase tracking-[0.3em] text-gold">
-            {question.kicker}
-          </p>
-        )}
-
-        {question.lead && (
-          <p className="mt-5 max-w-[520px] text-center text-base font-light leading-[2.25] text-foreground/70">
-            {question.lead}
-          </p>
-        )}
-
-        <h1
-          className={`max-w-[632px] whitespace-pre-line text-center font-display text-[1.75rem] leading-[1.5] text-foreground sm:text-[2.05rem] ${
-            question.kicker ? "mt-6" : "mt-14"
-          }`}
-        >
-          <HighlightedTitle parts={question.title} />
-        </h1>
-
-        <div className="mt-11 flex w-full max-w-[632px] flex-col gap-4">
-          {question.options.map((opt, optIdx) => {
-            const isChosen = selected === optIdx;
-            const isFaded = selected !== null && !isChosen;
-
-            return (
-              <button
-                key={opt.text}
-                type="button"
-                onClick={() => handleClick(optIdx)}
-                className={`flex w-full items-center gap-4 border bg-foreground/[0.025] px-5 text-left text-base text-foreground/90 transition-all duration-300 cursor-pointer ${
-                  opt.emoji ? "min-h-[89px] py-4" : "min-h-[70px] py-4"
-                } ${
-                  isChosen
-                    ? "border-gold/80 text-foreground shadow-option"
-                    : "border-foreground/10 hover:border-gold/70"
-                } ${isFaded ? "opacity-40" : "opacity-100"}`}
-              >
-                {opt.emoji && (
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-foreground/10 bg-background/60 text-[22px]">
-                    {opt.emoji}
-                  </span>
-                )}
-                <span>{opt.text}</span>
-              </button>
-            );
-          })}
+        <div className="relative mt-10 w-full max-w-[448px] overflow-hidden border border-gold/20 p-1.5 shadow-option">
+          <video
+            ref={videoRef}
+            src={VSL_VIDEOS[index]}
+            poster="/images/reader-portrait.jpg"
+            playsInline
+            preload="auto"
+            onEnded={() => setShowOptions(true)}
+            className="block aspect-[651/682] h-auto w-full object-cover"
+          />
+          {!started && (
+            <button
+              type="button"
+              onClick={() => {
+                setStarted(true);
+                onStart();
+              }}
+              className="absolute inset-1.5 flex flex-col items-center justify-center gap-3 bg-background/55 font-display text-xl text-gold backdrop-blur-[2px] cursor-pointer"
+            >
+              <span className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/70 text-2xl">▶</span>
+              Tap to hear your reader
+            </button>
+          )}
+          {started && (
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-label={muted ? "Unmute" : "Mute"}
+              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/70 text-lg cursor-pointer"
+            >
+              {muted ? "🔇" : "🔊"}
+            </button>
+          )}
+          {started && !showOptions && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-background/70 px-4 py-1.5 text-[12px] uppercase tracking-[0.25em] text-gold">
+              Speaking <span className="animate-pulse">•••</span>
+            </div>
+          )}
         </div>
+
+        {showOptions && (
+          <div className="fade-in flex w-full flex-col items-center">
+            <h1 className="mt-8 max-w-[632px] whitespace-pre-line text-center font-display text-[1.5rem] leading-[1.5] text-foreground sm:text-[1.8rem]">
+              <HighlightedTitle parts={question.title} />
+            </h1>
+            <div className="mt-8 flex w-full max-w-[632px] flex-col gap-4">
+              {question.options.map((opt, optIdx) => {
+                const isChosen = selected === optIdx;
+                const isFaded = selected !== null && !isChosen;
+                return (
+                  <button
+                    key={opt.text}
+                    type="button"
+                    onClick={() => handleClick(optIdx)}
+                    style={{ animationDelay: `${optIdx * 120}ms` }}
+                    className={`fade-in flex w-full items-center gap-4 border bg-foreground/[0.025] px-5 text-left text-base text-foreground/90 transition-all duration-300 cursor-pointer ${
+                      opt.emoji ? "min-h-[89px] py-4" : "min-h-[70px] py-4"
+                    } ${
+                      isChosen
+                        ? "border-gold/80 text-foreground shadow-option"
+                        : "border-foreground/10 hover:border-gold/70"
+                    } ${isFaded ? "opacity-40" : "opacity-100"}`}
+                  >
+                    {opt.emoji && (
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-foreground/10 bg-background/60 text-[22px]">
+                        {opt.emoji}
+                      </span>
+                    )}
+                    <span>{opt.text}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </Fragment>
   );
