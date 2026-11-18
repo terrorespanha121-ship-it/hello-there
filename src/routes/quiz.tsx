@@ -9,6 +9,8 @@ import vslQ5 from "@/assets/vsl-q5.mp4.asset.json";
 import ambientMusic from "@/assets/ambient_acoustic.mp3.asset.json";
 
 const VSL_VIDEOS = [vslQ1.url, vslQ2.url, vslQ3.url, vslQ4.url, vslQ5.url];
+// Horizontal focus per video so the reader's face stays centered when cropped vertically.
+const VSL_FOCUS_X = ["47%", "47%", "27%", "27%", "47%"];
 
 export const Route = createFileRoute("/quiz")({
   head: () => ({
@@ -268,6 +270,7 @@ function QuestionStep({
           preload="auto"
           onEnded={() => setShowOptions(true)}
           className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: `${VSL_FOCUS_X[index]} center` }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background/80 to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-background via-background/80 to-transparent" />
