@@ -23,83 +23,115 @@ export const Route = createFileRoute("/reading")({
   component: ReadingPage,
 });
 
-const VTURB_PLAYER_ID = "vid-6ae8d8bab850e26f93ec425d";
-const VTURB_SCRIPT_URL =
-  "https://scripts.converteai.net/b19b3a18-f0ae-4145-b71e-287227ee922b/players/6ae8d8bab850e26f93ec425d/v4/player.js";
 const HLS_STREAM_URL =
   "https://cdn.converteai.net/b19b3a18-f0ae-4145-b71e-287227ee922b/6ae8d8b2c7321bec2b42a664/main.m3u8";
 const POSTER_IMAGE = "/images/poster.jpg";
 const CHECKOUT_URL = "https://pay.cakto.com.br/35bnw5j_1281465";
+// Second of the video where the pitch starts and the checkout button is revealed.
+const PITCH_SECONDS = 720;
+const PROGRESS_KEY = "vsl-progress";
+const REVEAL_KEY = "vsl-pitch-revealed";
 
-const VTURB_HTML = `<vturb-smartplayer id="${VTURB_PLAYER_ID}" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>`;
-
-declare global {
-  interface Window {
-    Hls?: any;
-  }
-}
-
-function VideoPlayer() {
+function VideoPlayer({ onPitch }: { onPitch: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [useFallback, setUseFallback] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const pitchFired = useRef(false);
 
   useEffect(() => {
-    // Attempt loading VTurb official script
-    if (!document.querySelector(`script[src="${VTURB_SCRIPT_URL}"]`)) {
-      const script = document.createElement("script");
-      script.src = VTURB_SCRIPT_URL;
-      script.async = true;
-      script.onerror = () => setUseFallback(true);
-      document.head.appendChild(script);
+    const video = videoRef.current;
+    if (!video) return;
+    let hls: { destroy: () => void } | null = null;
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = HLS_STREAM_URL;
+    } else {
+      import("hls.js").then(({ default: Hls }) => {
+        if (!Hls.isSupported()) return;
+        const h = new Hls({ capLevelToPlayerSize: true });
+        h.loadSource(HLS_STREAM_URL);
+        h.attachMedia(video);
+        h.on(Hls.Events.ERROR, (_e, data) => {
+          if (!data.fatal) return;
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) h.startLoad();
+          else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) h.recoverMediaError();
+        });
+        hls = h;
+      });
     }
-
-    // Safety fallback: if VTurb is blocked or fails inside an iframe
-    const fallbackTimer = setTimeout(() => {
-      const el = document.getElementById(VTURB_PLAYER_ID);
-      const isRendered = el && (el.shadowRoot || el.querySelector("video") || el.children.length > 1);
-      if (!isRendered) {
-        setUseFallback(true);
-      }
-    }, 2800);
-
-    return () => clearTimeout(fallbackTimer);
+    video.muted = true;
+    video.play().catch(() => {});
+    return () => hls?.destroy();
   }, []);
 
-  useEffect(() => {
-    if (useFallback && videoRef.current) {
-      const video = videoRef.current;
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = HLS_STREAM_URL;
-      } else {
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
-        script.onload = () => {
-          if (window.Hls && window.Hls.isSupported()) {
-            const hls = new window.Hls();
-            hls.loadSource(HLS_STREAM_URL);
-            hls.attachMedia(video);
-          }
-        };
-        document.head.appendChild(script);
-      }
+  const handleTime = () => {
+    const v = videoRef.current;
+    if (!v || !v.duration) return;
+    // VTurb-style progress: moves fast at the start, slower later.
+    setProgress(Math.pow(v.currentTime / v.duration, 0.5) * 100);
+    if (started) localStorage.setItem(PROGRESS_KEY, String(v.currentTime));
+    if (!pitchFired.current && v.currentTime >= PITCH_SECONDS) {
+      pitchFired.current = true;
+      onPitch();
     }
-  }, [useFallback]);
+  };
 
-  if (useFallback) {
-    return (
-      <div className="relative mx-auto w-full max-w-[400px] overflow-hidden border border-gold/30 bg-black shadow-gold-soft">
-        <video
-          ref={videoRef}
-          controls
-          playsInline
-          poster={POSTER_IMAGE}
-          className="aspect-[3/4] h-auto w-full object-cover"
-        />
-      </div>
-    );
-  }
+  const start = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    const saved = Number(localStorage.getItem(PROGRESS_KEY) || 0);
+    v.currentTime = saved > 0 && saved < v.duration - 5 ? saved : 0;
+    v.muted = false;
+    v.play().catch(() => {});
+    setStarted(true);
+  };
 
-  return <div className="w-full" dangerouslySetInnerHTML={{ __html: VTURB_HTML }} />;
+  const toggle = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (!started) return start();
+    if (v.paused) v.play();
+    else v.pause();
+  };
+
+  return (
+    <div
+      className="relative mx-auto w-full max-w-[400px] cursor-pointer overflow-hidden border border-gold/30 bg-black shadow-gold-soft"
+      onClick={toggle}
+    >
+      <video
+        ref={videoRef}
+        playsInline
+        autoPlay
+        muted
+        loop={!started}
+        poster={POSTER_IMAGE}
+        onTimeUpdate={handleTime}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        className="aspect-[3/4] h-auto w-full object-cover"
+      />
+      {!started && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/40">
+          <div className="mx-6 flex flex-col items-center gap-3 border border-gold/50 bg-background/85 px-6 py-5 text-center">
+            <span className="text-sm uppercase tracking-[0.2em] text-gold">Your video has already started</span>
+            <span className="text-4xl">🔊</span>
+            <span className="text-sm text-foreground/85">Tap to listen</span>
+          </div>
+        </div>
+      )}
+      {started && !playing && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+          <span className="flex h-20 w-20 items-center justify-center rounded-full bg-gold-gradient text-3xl text-primary-foreground">▶</span>
+        </div>
+      )}
+      {started && (
+        <div className="absolute bottom-0 left-0 h-1.5 w-full bg-foreground/15">
+          <div className="h-full bg-gold-gradient transition-[width] duration-300" style={{ width: `${progress}%` }} />
+        </div>
+      )}
+    </div>
+  );
 }
 
 const AUTHORS: Record<string, { name: string; avatar: string }> = {
@@ -279,6 +311,15 @@ function CommentCard({ comment }: { comment: Comment }) {
 }
 
 function ReadingPage() {
+  const [showCheckout, setShowCheckout] = useState(false);
+  useEffect(() => {
+    if (localStorage.getItem(REVEAL_KEY) === "1") setShowCheckout(true);
+  }, []);
+  const revealCheckout = () => {
+    localStorage.setItem(REVEAL_KEY, "1");
+    setShowCheckout(true);
+  };
+
   return (
     <CosmicShell widthClassName="max-w-[672px]">
       <h1 className="mt-9 text-center font-display text-[2.4rem] font-medium leading-[1.15] text-gold sm:text-[3.1rem]">
@@ -288,19 +329,21 @@ function ReadingPage() {
       </h1>
 
       <div className="mt-12 w-full max-w-[400px]">
-        <VideoPlayer />
+        <VideoPlayer onPitch={revealCheckout} />
       </div>
 
-      <div className="mt-8 flex w-full justify-center">
+      {showCheckout && (
+      <div className="fade-in mt-8 flex w-full justify-center">
         <a
           href={CHECKOUT_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="flex h-16 w-full max-w-[448px] items-center justify-center text-[15px] font-medium uppercase tracking-[0.04em] text-primary-foreground shadow-cta bg-gold-gradient transition-transform hover:scale-[1.015]"
         >
-          Destravar Minha Leitura Completa →
+          Unlock My Full Reading →
         </a>
       </div>
+      )}
 
       <div className="mt-16 flex w-full items-center gap-4">
         <span className="h-px flex-1 bg-foreground/15" />
