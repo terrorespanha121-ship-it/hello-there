@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CosmicShell, GoldButton } from "../components/CosmicShell";
-import vslQ1 from "@/assets/vsl-q1.mp4.asset.json";
-import vslQ2 from "@/assets/vsl-q2.mp4.asset.json";
-import vslQ3 from "@/assets/vsl-q3.mp4.asset.json";
-import vslQ4 from "@/assets/vsl-q4.mp4.asset.json";
-import vslQ5 from "@/assets/vsl-q5.mp4.asset.json";
+import vslQ1 from "@/assets/reader-q1.mp4.asset.json";
+import vslQ2 from "@/assets/reader-q2.mp4.asset.json";
+import vslQ3 from "@/assets/reader-q3.mp4.asset.json";
+import vslQ4 from "@/assets/reader-q4.mp4.asset.json";
+import vslQ5 from "@/assets/reader-q5.mp4.asset.json";
 import ambientMusic from "@/assets/ambient_acoustic.mp3.asset.json";
 
 const VSL_VIDEOS = [vslQ1.url, vslQ2.url, vslQ3.url, vslQ4.url, vslQ5.url];
 // Horizontal focus per video so the reader's face stays centered when cropped vertically.
-const VSL_FOCUS_X = ["47%", "47%", "27%", "27%", "47%"];
+const VSL_FOCUS_X = ["50%", "50%", "50%", "50%", "50%"];
 
 export const Route = createFileRoute("/quiz")({
   head: () => ({
@@ -35,9 +35,9 @@ interface Question {
 const QUESTIONS: Question[] = [
   {
     title: [
-      ["Which of these sentences feels\nlike it was "],
-      ["written about you", true],
-      ["?"],
+      ["Which of these sentences "],
+      ["hits you the hardest", true],
+      ["...\nand feels like it was written about your life?"],
     ],
     options: [
       { emoji: "😮‍💨", text: "My life feels stuck, even though I'm doing everything right." },
@@ -48,9 +48,9 @@ const QUESTIONS: Question[] = [
   },
   {
     title: [
-      ["When you think about "],
-      ["your relationships", true],
-      ["...\nwhich sentence describes what you feel best?"],
+      ["When you look at your relationships...\nwhich describes "],
+      ["the weight you carry in silence", true],
+      ["?"],
     ],
     options: [
       { emoji: "💔", text: "I give everything to people, but when I need someone... I'm alone." },
@@ -61,9 +61,9 @@ const QUESTIONS: Question[] = [
   },
   {
     title: [
-      ["If 2026 could bring "],
-      ["one real\ntransformation", true],
-      [" into your life,\nwhich would mean the most to you?"],
+      ["If you could "],
+      ["break one curse", true],
+      [" right now...\nwhich part of your life would you transform?"],
     ],
     options: [
       { text: "Finally escaping financial pressure and building real stability" },
@@ -74,11 +74,9 @@ const QUESTIONS: Question[] = [
   },
   {
     title: [
-      [
-        "Has this happened to you? You look around\nand everyone seems to be moving forward...\nwhile you feel ",
-      ],
-      ["stuck in the same place", true],
-      ["."],
+      ["Are you tired of watching everyone move forward...\nwhile your own life stays "],
+      ["completely stuck", true],
+      ["?"],
     ],
     options: [
       { text: "Yes — that describes exactly where I am right now" },
@@ -88,8 +86,8 @@ const QUESTIONS: Question[] = [
   },
   {
     kicker: "(Last question before your reading)",
-    lead: "If the cards revealed TODAY what is blocking your life and showed you the exact path to unlock it...",
-    title: [["Would you be ready to follow that guidance?"]],
+    lead: "If the cards reveal the brutal truth about what is holding you back today...",
+    title: [["Are you "], ["genuinely ready", true], [" to hear it?"]],
     options: [
       { emoji: "✅", text: "Yes, I'm ready to receive it." },
       { emoji: "😔", text: "Yes, but I'm afraid of being let down again." },
@@ -265,7 +263,6 @@ function QuestionStep({
         <video
           ref={videoRef}
           src={VSL_VIDEOS[index]}
-          poster="/images/reader-portrait.jpg"
           playsInline
           preload="auto"
           onEnded={() => setShowOptions(true)}
