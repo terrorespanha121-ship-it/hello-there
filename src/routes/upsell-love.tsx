@@ -44,10 +44,12 @@ function UpsellLove() {
   };
 
   const flip = (i: number) => {
-    if (flipped.includes(i)) return;
-    const next = [...flipped, i];
-    setFlipped(next);
-    if (next.length === 3) setTimeout(() => setStage("offer"), 1400);
+    setFlipped((prev) => {
+      if (prev.includes(i)) return prev;
+      const next = [...prev, i];
+      if (next.length === 3) setTimeout(() => setStage("offer"), 1400);
+      return next;
+    });
   };
 
   const readerChooses = () => {
