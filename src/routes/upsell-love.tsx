@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/upsell-love.mp4.asset.json";
+import cardsVideo from "@/assets/upsell-love-cards.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
   head: () => ({
@@ -26,7 +27,7 @@ const LOVE_CARDS = [
   { name: "The Inevitable Meeting", hint: "Their name begins with a letter the cards just showed me…", img: "/images/card-tower.jpg" },
 ];
 
-type Stage = "video" | "choice" | "cards" | "offer";
+type Stage = "video" | "choice" | "cards" | "reading" | "offer";
 
 function UpsellLove() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -53,8 +54,13 @@ function UpsellLove() {
   };
 
   const readerChooses = () => {
-    setStage("cards");
-    [0, 1, 2].forEach((i) => setTimeout(() => flip(i), 700 + i * 900));
+    setStage("reading");
+    const v = videoRef.current;
+    if (!v) return;
+    v.src = cardsVideo.url;
+    v.muted = false;
+    v.currentTime = 0;
+    v.play();
   };
 
   return (
@@ -66,9 +72,9 @@ function UpsellLove() {
         playsInline
         autoPlay
         muted
-        onEnded={() => setStage((s) => (s === "video" ? "choice" : s))}
+        onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
         className="absolute inset-0 h-full w-full object-cover"
-        style={{ objectPosition: "47% center" }}
+        style={{ objectPosition: stage === "reading" || stage === "offer" ? "center" : "35% center" }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
 
@@ -83,6 +89,10 @@ function UpsellLove() {
       )}
 
       <div className="absolute inset-x-0 bottom-0 z-20 p-5 pb-8">
+        {stage === "reading" && (
+          <p className="text-center text-sm text-foreground/80">Your reader is drawing your cards •••</p>
+        )}
+
         {stage === "video" && started && (
           <p className="text-center text-sm text-foreground/80">Your reader is speaking •••</p>
         )}
