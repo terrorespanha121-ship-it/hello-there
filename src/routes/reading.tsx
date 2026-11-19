@@ -28,7 +28,7 @@ const HLS_STREAM_URL =
 const POSTER_IMAGE = "/images/poster.jpg";
 const CHECKOUT_URL = "https://pay.cakto.com.br/35bnw5j_1281465";
 // Second of the video where the pitch starts and the checkout button is revealed.
-const PITCH_SECONDS = 1076; // 17:56 — price ($27) is revealed.
+const PITCH_SECONDS = 1098; // 18:18 — "A button will appear right below."
 const PROGRESS_KEY = "vsl-progress";
 const REVEAL_KEY = "vsl-pitch-revealed";
 
