@@ -8,7 +8,7 @@ export const Route = createFileRoute("/privacy")({
       {
         name: "description",
         content:
-          "How this tarot reading page uses advertising cookies, UTM tracking and your choices.",
+          "How this tarot reading page uses your data and keeps your privacy.",
       },
       { property: "og:title", content: "Privacy & Cookies — Psychic Tarot Reading" },
       { property: "og:type", content: "website" },
@@ -26,32 +26,14 @@ function PrivacyPage() {
 
         <h2 className="pt-2 font-display text-2xl text-gold">What we collect</h2>
         <p>
-          When you visit, we may record the campaign details in the link you arrived from (UTM parameters such as
-          source, campaign and ad), the pages you view, your browser and device type, your IP address, and
-          advertising cookie identifiers (Meta’s _fbp / _fbc).
+          This site does not use advertising pixels or tracking tags. Your quiz answers and video progress are
+          stored only in your own browser.
         </p>
 
-        <h2 className="font-display text-2xl text-gold">Who receives it and why</h2>
+        <h2 className="font-display text-2xl text-gold">Payments</h2>
         <p>
-          <strong className="text-gold">Meta Platforms</strong> (Facebook / Instagram) receives page visits and
-          checkout activity through the Meta Pixel, to measure our ads and to help Meta show them to people
-          likely to be interested (ad optimization).
-        </p>
-        <p>
-          <strong className="text-gold">Utmify</strong> loads the Meta Pixel for us and keeps the campaign
-          details so we can see which ad led to a purchase. The campaign details are also passed to our
-          checkout provider, <strong className="text-gold">Cakto</strong>, so the purchase can be attributed to
-          the right ad. To do this, Utmify looks up your IP address using the ipify service.
-        </p>
-        <p>
-          The video on the reading page is provided by <strong className="text-gold">vturb</strong>.
-        </p>
-
-        <h2 className="font-display text-2xl text-gold">Your choice</h2>
-        <p>
-          In the EU, EEA, UK and Switzerland the Meta Pixel only runs after you click “Accept”. Elsewhere it runs
-          by default, and you can turn it off at any time. Your choice, the date and the version of this notice
-          are stored in your browser. Changing it takes effect immediately.
+          Purchases are handled by our checkout provider, <strong className="text-gold">Cakto</strong>, under its
+          own privacy policy.
         </p>
 
         <p className="text-sm text-foreground/60">Last updated: November 4, 2026.</p>

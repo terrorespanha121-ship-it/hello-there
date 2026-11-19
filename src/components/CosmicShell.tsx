@@ -91,8 +91,8 @@ export function CosmicShell({ children, widthClassName = "max-w-[768px]" }: Cosm
             </button>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-foreground/80">
-            We use cookies and marketing tags (like Meta Pixel and UTM parameters) to measure our advertising campaigns
-            and personalize your experience. You can choose whether to allow these tracking technologies.
+            This site uses no advertising pixels or tracking tags. Only your quiz answers and video progress are
+            saved in your own browser.
           </p>
           <div className="mt-4 flex gap-3">
             <button
