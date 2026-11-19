@@ -122,12 +122,13 @@ function QuizPage() {
   const [step, setStep] = useState<QuizStep>({ kind: "question", index: 0 });
   const [fading, setFading] = useState(false);
   const musicRef = useRef<HTMLAudioElement | null>(null);
+  const [allMuted, setAllMuted] = useState(false);
 
   const startMusic = () => {
     if (!musicRef.current) {
       const a = new Audio(ambientMusic.url);
       a.loop = true;
-      a.volume = 0.12;
+      a.volume = 0.06;
       musicRef.current = a;
     }
     musicRef.current.play().catch(() => {});
@@ -155,6 +156,8 @@ function QuizPage() {
             index={step.index}
             question={QUESTIONS[step.index]!}
             onStart={startMusic}
+            initialMuted={allMuted}
+            onMuteChange={(m) => { setAllMuted(m); if (musicRef.current) musicRef.current.muted = m; }}
             onAnswer={() =>
               transitionTo(
                 step.index + 1 < QUESTIONS.length
@@ -220,22 +223,26 @@ function QuestionStep({
   question,
   onAnswer,
   onStart,
+  onMuteChange,
+  initialMuted,
 }: {
   index: number;
   question: Question;
   onAnswer: () => void;
   onStart: () => void;
+  onMuteChange: (muted: boolean) => void;
+  initialMuted: boolean;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [started, setStarted] = useState(index > 0);
   const [showOptions, setShowOptions] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(initialMuted);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !started) return;
-    v.muted = false;
+    v.muted = initialMuted;
     v.play().catch(() => {
       v.muted = true;
       setMuted(true);
@@ -255,6 +262,7 @@ function QuestionStep({
     if (!v) return;
     v.muted = !v.muted;
     setMuted(v.muted);
+    onMuteChange(v.muted);
   };
 
   return (
