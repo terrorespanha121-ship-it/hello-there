@@ -79,6 +79,7 @@ function UpsellLove() {
     if (!v) return;
     v.src = cardsVideo.url;
     v.muted = false;
+    v.volume = 0.6;
     v.currentTime = 0;
     v.play();
   };
@@ -95,10 +96,9 @@ function UpsellLove() {
         poster="/images/reader-portrait.jpg"
         playsInline
         onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
-        className="absolute inset-0 h-full w-full object-cover md:object-contain"
+        className="absolute inset-0 h-full w-full object-cover"
         style={{
           objectPosition: "center",
-          transform: "translateY(4%)",
         }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
