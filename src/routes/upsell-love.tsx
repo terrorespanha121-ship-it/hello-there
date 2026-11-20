@@ -84,7 +84,12 @@ function UpsellLove() {
         playsInline
         onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
         className="absolute inset-0 h-full w-full object-cover md:object-contain"
-        style={{ objectPosition: stage === "reading" || stage === "offer" ? "center" : "center" }}
+        style={{
+          objectPosition: "center",
+          transform: "scale(0.9) translateY(4%)",
+          WebkitMaskImage: "radial-gradient(ellipse 75% 70% at 50% 50%, #000 55%, transparent 100%)",
+          maskImage: "radial-gradient(ellipse 75% 70% at 50% 50%, #000 55%, transparent 100%)",
+        }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
 
