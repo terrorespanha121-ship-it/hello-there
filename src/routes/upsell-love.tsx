@@ -31,6 +31,14 @@ type Stage = "video" | "choice" | "cards" | "reading" | "offer";
 
 function UpsellLove() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const bgRef = useRef<HTMLVideoElement>(null);
+  const syncBg = () => {
+    const v = videoRef.current, b = bgRef.current;
+    if (!v || !b) return;
+    if (b.src !== v.currentSrc && v.currentSrc) b.src = v.currentSrc;
+    if (Math.abs(b.currentTime - v.currentTime) > 0.3) b.currentTime = v.currentTime;
+    if (v.paused) b.pause(); else b.play().catch(() => {});
+  };
   const [started, setStarted] = useState(false);
   const [stage, setStage] = useState<Stage>("video");
   const [flipped, setFlipped] = useState<number[]>([]);
@@ -78,7 +86,20 @@ function UpsellLove() {
   return (
     <div className="fixed inset-0 overflow-hidden bg-background text-foreground">
       <video
+        ref={bgRef}
+        src={loveVideo.url}
+        muted
+        playsInline
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "blur(28px) brightness(0.85)", transform: "scale(1.25)" }}
+      />
+      <video
         ref={videoRef}
+        onPlay={syncBg}
+        onPause={syncBg}
+        onSeeked={syncBg}
+        onTimeUpdate={syncBg}
         src={loveVideo.url}
         poster="/images/reader-portrait.jpg"
         playsInline
@@ -87,13 +108,13 @@ function UpsellLove() {
         style={{
           objectPosition: "center",
           transform: "scale(0.9) translateY(4%)",
-          WebkitMaskImage: "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent)",
+          WebkitMaskImage: "linear-gradient(to right, transparent, #000 6%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 5%, #000 92%, transparent)",
           WebkitMaskComposite: "source-in",
           maskComposite: "intersect",
-          maskImage: "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent)",
+          maskImage: "linear-gradient(to right, transparent, #000 6%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 5%, #000 92%, transparent)",
         }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
 
       <div className="absolute inset-x-0 top-0 p-4 text-center">
         <p className="text-[11px] uppercase tracking-[0.3em] text-gold">Wait — your reading isn't complete</p>
