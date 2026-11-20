@@ -73,7 +73,7 @@ function UpsellLove() {
         autoPlay
         muted
         onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover md:object-contain"
         style={{ objectPosition: stage === "reading" || stage === "offer" ? "center" : "center" }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
