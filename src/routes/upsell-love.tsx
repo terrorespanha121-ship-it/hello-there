@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/love-intro-v3.mp4.asset.json";
 import cardsVideo from "@/assets/love-cards-voice-v2.mp4.asset.json";
-import closingVideo from "@/assets/love_closing_v2.mp4.asset.json";
+import closingVideo from "@/assets/love_closing_v3.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
   head: () => ({
@@ -44,14 +44,6 @@ function UpsellLove() {
   const [stage, setStage] = useState<Stage>("video");
   const [flipped, setFlipped] = useState<number[]>([]);
 
-  const start = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = false;
-    v.currentTime = 0;
-    v.play();
-    setStarted(true);
-  };
 
   useEffect(() => {
     const v = videoRef.current;
@@ -61,8 +53,18 @@ function UpsellLove() {
       .then(() => setStarted(true))
       .catch(() => {
         v.muted = true;
-        v.play().catch(() => {});
+        v.play().then(() => setStarted(true)).catch(() => {});
+        const unmute = () => { v.muted = false; v.play().catch(() => {}); };
+        window.addEventListener("pointerdown", unmute, { once: true });
+        window.addEventListener("touchstart", unmute, { once: true });
       });
+    // preload next videos for seamless transitions
+    [cardsVideo.url, closingVideo.url].forEach((u) => {
+      const pre = document.createElement("link");
+      pre.rel = "preload"; pre.as = "video"; pre.href = u;
+      document.head.appendChild(pre);
+      fetch(u).catch(() => {});
+    });
   }, []);
 
   const playClosing = () => {
@@ -82,7 +84,7 @@ function UpsellLove() {
     if (flipped.includes(i)) return;
     const next = [...flipped, i];
     setFlipped(next);
-    if (next.length === 3) setTimeout(playClosing, 1400);
+    if (next.length === 3) setTimeout(playClosing, 900);
   };
 
   const readerChooses = () => {
@@ -105,7 +107,7 @@ function UpsellLove() {
         onSeeked={syncBg}
         onTimeUpdate={(e) => {
           syncBg();
-          if (stage === "closing" && e.currentTarget.currentSrc.includes("love_closing_v2") && e.currentTarget.currentTime >= 16) setStage("offer");
+          if (stage === "closing" && e.currentTarget.currentSrc.includes("love_closing_v3") && e.currentTarget.currentTime >= 16) setStage("offer");
         }}
         src={loveVideo.url}
         poster="/images/reader-portrait.jpg"
@@ -114,7 +116,7 @@ function UpsellLove() {
           if (stage === "reading") return playClosing();
           setStage((s) => (s === "video" ? "choice" : s === "closing" ? "offer" : s));
         }}
-        className="absolute inset-0 h-full w-full object-cover scale-[1.08] md:scale-100 md:object-contain"
+        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 scale-[1.08] md:scale-100 md:object-contain"
         style={{
           objectPosition: "center",
         }}
@@ -125,11 +127,6 @@ function UpsellLove() {
         <p className="text-[11px] uppercase tracking-[0.3em] text-gold">Wait — your reading isn't complete</p>
       </div>
 
-      {!started && (
-        <button onClick={start} className="absolute inset-0 z-10 flex items-center justify-center bg-background/40">
-          <span className="border border-gold/60 bg-panel px-6 py-4 font-display text-xl text-gold">🔊 Tap to hear your reader</span>
-        </button>
-      )}
 
       <div className="absolute inset-x-0 bottom-0 z-20 p-5 pb-8">
         {stage === "reading" && (
