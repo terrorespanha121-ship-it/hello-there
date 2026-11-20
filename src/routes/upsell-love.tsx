@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/love-intro-soft.mp4.asset.json";
 import cardsVideo from "@/assets/love-cards-voice.mp4.asset.json";
@@ -44,6 +44,18 @@ function UpsellLove() {
     setStarted(true);
   };
 
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = false;
+    v.play()
+      .then(() => setStarted(true))
+      .catch(() => {
+        v.muted = true;
+        v.play().catch(() => {});
+      });
+  }, []);
+
   const flip = (i: number) => {
     setFlipped((prev) => {
       if (prev.includes(i)) return prev;
@@ -70,8 +82,6 @@ function UpsellLove() {
         src={loveVideo.url}
         poster="/images/reader-portrait.jpg"
         playsInline
-        autoPlay
-        muted
         onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
         className="absolute inset-0 h-full w-full object-cover md:object-contain"
         style={{ objectPosition: stage === "reading" || stage === "offer" ? "center" : "center" }}
