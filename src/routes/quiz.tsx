@@ -266,7 +266,7 @@ function QuestionStep({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-center" style={{ background: "color-mix(in oklab, var(--background) 82%, var(--foreground) 18%)" }}>
+    <div className="fixed inset-0 z-50 flex justify-center" style={{ background: "var(--background)" }}>
       <div className="fade-in relative h-full w-full max-w-[480px] overflow-hidden">
         <video
           ref={videoRef}
@@ -275,7 +275,7 @@ function QuestionStep({
           preload="auto"
           onEnded={() => setShowOptions(true)}
           className="absolute inset-x-0 bottom-0 top-12 h-[calc(100%-3rem)] w-full object-cover"
-          style={{ objectPosition: `${VSL_FOCUS_X[index]} top`, transform: "scale(0.92)", transformOrigin: "center top", WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 10%, #000 80%, transparent 100%)", maskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 10%, #000 80%, transparent 100%)", WebkitMaskComposite: "source-in", maskComposite: "intersect" }}
+          style={{ objectPosition: `${VSL_FOCUS_X[index]} top`, transform: "scale(0.92)", transformOrigin: "center top", WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,0.6) 0%, #000 22%, #000 78%, rgba(0,0,0,0.6) 100%), linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, #000 12%, #000 82%, rgba(0,0,0,0.6) 100%)", maskImage: "linear-gradient(to right, rgba(0,0,0,0.6) 0%, #000 22%, #000 78%, rgba(0,0,0,0.6) 100%), linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, #000 12%, #000 82%, rgba(0,0,0,0.6) 100%)", WebkitMaskComposite: "source-in", maskComposite: "intersect" }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background/50 to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-background/70 via-background/35 to-transparent" />
