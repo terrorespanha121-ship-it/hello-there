@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/love-intro-v3.mp4.asset.json";
 import cardsVideo from "@/assets/love-cards-voice-v2.mp4.asset.json";
-import closingVideo from "@/assets/love_closing.mp4.asset.json";
+import closingVideo from "@/assets/love_closing_v2.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
   head: () => ({
@@ -105,7 +105,7 @@ function UpsellLove() {
         onSeeked={syncBg}
         onTimeUpdate={(e) => {
           syncBg();
-          if (stage === "closing" && e.currentTarget.currentSrc.includes("love_closing") && e.currentTarget.currentTime >= 15.5) setStage("offer");
+          if (stage === "closing" && e.currentTarget.currentSrc.includes("love_closing_v2") && e.currentTarget.currentTime >= 16) setStage("offer");
         }}
         src={loveVideo.url}
         poster="/images/reader-portrait.jpg"
