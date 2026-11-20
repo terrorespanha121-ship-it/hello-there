@@ -274,8 +274,8 @@ function QuestionStep({
           playsInline
           preload="auto"
           onEnded={() => setShowOptions(true)}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: `${VSL_FOCUS_X[index]} center` }}
+          className="absolute inset-x-0 bottom-0 top-12 h-[calc(100%-3rem)] w-full object-cover"
+          style={{ objectPosition: `${VSL_FOCUS_X[index]} top`, transform: "scale(0.92)", transformOrigin: "center top" }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background/80 to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-background via-background/80 to-transparent" />
