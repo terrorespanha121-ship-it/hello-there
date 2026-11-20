@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import loveVideo from "@/assets/love-intro-soft.mp4.asset.json";
+import loveVideo from "@/assets/love-intro-v2.mp4.asset.json";
 import cardsVideo from "@/assets/love-cards-voice.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
