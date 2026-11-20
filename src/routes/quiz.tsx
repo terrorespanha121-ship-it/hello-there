@@ -234,7 +234,7 @@ function QuestionStep({
   initialMuted: boolean;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
-  const [started, setStarted] = useState(index > 0);
+  const [started, setStarted] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
   const [muted, setMuted] = useState(initialMuted);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -242,6 +242,7 @@ function QuestionStep({
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !started) return;
+    if (index === 0) onStart();
     v.muted = initialMuted;
     v.play().catch(() => {
       v.muted = true;
