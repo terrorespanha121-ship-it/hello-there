@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import introAsset from "@/assets/prosperity_intro.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-prosperity")({
   head: () => ({
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/upsell-prosperity")({
 const MAIN_CHECKOUT_URL = "#checkout-prosperity-97";
 const DISCOUNT_CHECKOUT_URL = "#checkout-prosperity-67";
 // Set to the HeyGen intro video once uploaded (null = portrait image).
-const INTRO_VIDEO_URL: string | null = null;
+const INTRO_VIDEO_URL: string | null = introAsset.url;
 
 const SEALS = ["Seal of Abundance", "Seal of Fortune", "Seal of Gold"];
 // The wheel always lands on 50% OFF (slice index 0)
