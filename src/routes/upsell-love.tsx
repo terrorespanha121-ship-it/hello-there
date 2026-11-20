@@ -96,7 +96,7 @@ function UpsellLove() {
         poster="/images/reader-portrait.jpg"
         playsInline
         onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover scale-[1.08] md:scale-100 md:object-contain"
         style={{
           objectPosition: "center",
         }}
