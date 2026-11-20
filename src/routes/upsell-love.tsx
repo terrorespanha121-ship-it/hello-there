@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import loveVideo from "@/assets/upsell-love.mp4.asset.json";
+import loveVideo from "@/assets/upsell-love-intro.mp4.asset.json";
 import cardsVideo from "@/assets/upsell-love-cards.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
@@ -74,7 +74,7 @@ function UpsellLove() {
         muted
         onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
         className="absolute inset-0 h-full w-full object-cover"
-        style={{ objectPosition: stage === "reading" || stage === "offer" ? "center" : "35% center" }}
+        style={{ objectPosition: stage === "reading" || stage === "offer" ? "center" : "center" }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
 
