@@ -23,7 +23,11 @@ const DISCOUNT_CHECKOUT_URL = "#checkout-prosperity-67";
 // Set to the HeyGen intro video once uploaded (null = portrait image).
 const INTRO_VIDEO_URL: string | null = introAsset.url;
 
-const SEALS = ["Seal of Abundance", "Seal of Fortune", "Seal of Gold"];
+const PAINS = [
+  { label: "I work non-stop, but my account is always back to zero", reveal: "An energy drain is pulling every gain back to zero. Your 2027 map shows exactly when this cycle breaks." },
+  { label: "I'm in debt and feel I'll never climb out of this hole", reveal: "A heavy debt pattern is tied to your timeline. Your 2027 map reveals the exact months it can finally lift." },
+  { label: "I know I deserve more, but an invisible wall blocks my way", reveal: "A hidden block is standing between you and abundance. Your 2027 map shows the rare window when it opens." },
+];
 // The wheel always lands on 50% OFF (slice index 0)
 const SLICES = ["50% OFF", "10% OFF", "20% OFF", "5% OFF", "30% OFF", "15% OFF"];
 
@@ -50,7 +54,7 @@ function UpsellProsperity() {
 
   const pickSeal = (i: number) => {
     setSeal(i);
-    setTimeout(() => setStage("offer"), 1200);
+    setTimeout(() => setStage("offer"), 2200);
   };
 
   const spin = () => {
@@ -91,25 +95,24 @@ function UpsellProsperity() {
 
         {stage === "seal" && (
           <div className="fade-in mx-auto max-w-md text-center">
-            <h2 className="mb-2 font-display text-3xl text-gold">Place your personal seal</h2>
-            <p className="mb-4 text-sm text-foreground/80">Touch the seal your energy is drawn to. It opens your 2027 Prosperity Vault.</p>
-            <div className="grid grid-cols-3 gap-3">
-              {SEALS.map((s, i) => (
-                <button key={s} onClick={() => seal === null && pickSeal(i)} className="flex flex-col items-center gap-2">
-                  <span className={`flex aspect-square w-full items-center justify-center rounded-full border-2 border-gold font-display text-3xl text-gold transition-all duration-700 ${seal === i ? "scale-110 bg-gold-gradient text-primary-foreground shadow-cta" : seal === null ? "animate-pulse bg-panel" : "bg-panel opacity-30"}`}>
-                    ✦
-                  </span>
-                  <span className="text-[11px] text-gold">{s}</span>
+            <h2 className="mb-2 font-display text-2xl text-gold">What invisible chain is choking your finances?</h2>
+            <p className="mb-4 text-sm text-foreground/80">Be honest. Your answer opens your 2027 Prosperity Vault.</p>
+            <div className="space-y-2">
+              {PAINS.map((p, i) => (
+                <button key={p.label} onClick={() => seal === null && pickSeal(i)}
+                  className={`w-full border border-gold/40 bg-panel p-3 text-left text-sm transition-all duration-500 ${seal === i ? "scale-[1.02] border-gold shadow-cta text-gold" : seal === null ? "" : "opacity-30"}`}>
+                  🔴 {p.label}
                 </button>
               ))}
             </div>
-            {seal !== null && <p className="fade-in mt-4 text-sm text-gold">Your seal is accepted… opening the vault</p>}
+            {seal !== null && <p className="fade-in mt-4 text-sm text-gold">Reading your 2027 financial energy…</p>}
           </div>
         )}
 
         {stage === "offer" && (
           <div className="fade-in mx-auto max-w-md border border-gold/40 bg-panel p-5">
             <h2 className="text-center font-display text-2xl text-gold">Your 2027 Prosperity Blueprint is unlocked</h2>
+            {seal !== null && <p className="mt-2 text-center text-sm italic text-foreground/85">“{PAINS[seal]?.reveal}”</p>}
             <ul className="mt-3 space-y-2 text-sm text-foreground/85">
               <li>✦ <b className="text-gold">Your 12-month money map:</b> the exact months to act and to wait</li>
               <li>✦ <b className="text-gold">The financial block:</b> what keeps money slipping away — and how to clear it</li>
