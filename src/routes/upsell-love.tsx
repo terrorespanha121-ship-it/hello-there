@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/love-intro-v3.mp4.asset.json";
 import cardsVideo from "@/assets/love-cards-voice-v2.mp4.asset.json";
+import closingVideo from "@/assets/love_closing.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
   head: () => ({
@@ -27,7 +28,7 @@ const LOVE_CARDS = [
   { name: "The Inevitable Meeting", hint: "Their name begins with a letter the cards just showed me…", img: "/images/card-tower.jpg" },
 ];
 
-type Stage = "video" | "choice" | "cards" | "reading" | "offer";
+type Stage = "video" | "choice" | "cards" | "reading" | "closing" | "offer";
 
 function UpsellLove() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -64,11 +65,22 @@ function UpsellLove() {
       });
   }, []);
 
+  const playClosing = () => {
+    setStage("closing");
+    const v = videoRef.current;
+    if (!v) return;
+    v.src = closingVideo.url;
+    v.muted = false;
+    v.volume = 1;
+    v.currentTime = 0;
+    v.play().catch(() => setStage("offer"));
+  };
+
   const flip = (i: number) => {
     setFlipped((prev) => {
       if (prev.includes(i)) return prev;
       const next = [...prev, i];
-      if (next.length === 3) setTimeout(() => setStage("offer"), 1400);
+      if (next.length === 3) setTimeout(playClosing, 1400);
       return next;
     });
   };
@@ -91,11 +103,17 @@ function UpsellLove() {
         onPlay={syncBg}
         onPause={syncBg}
         onSeeked={syncBg}
-        onTimeUpdate={syncBg}
+        onTimeUpdate={(e) => {
+          syncBg();
+          if (stage === "closing" && e.currentTarget.currentTime >= 15.5) setStage("offer");
+        }}
         src={loveVideo.url}
         poster="/images/reader-portrait.jpg"
         playsInline
-        onEnded={() => setStage((s) => (s === "video" ? "choice" : s === "reading" ? "offer" : s))}
+        onEnded={() => {
+          if (stage === "reading") return playClosing();
+          setStage((s) => (s === "video" ? "choice" : s === "closing" ? "offer" : s));
+        }}
         className="absolute inset-0 h-full w-full object-cover scale-[1.08] md:scale-100 md:object-contain"
         style={{
           objectPosition: "center",
@@ -116,6 +134,10 @@ function UpsellLove() {
       <div className="absolute inset-x-0 bottom-0 z-20 p-5 pb-8">
         {stage === "reading" && (
           <p className="text-center text-sm text-foreground/80">Your reader is drawing your cards •••</p>
+        )}
+
+        {stage === "closing" && (
+          <p className="text-center text-sm text-foreground/80">Your reader has a message for you •••</p>
         )}
 
         {stage === "video" && started && (
