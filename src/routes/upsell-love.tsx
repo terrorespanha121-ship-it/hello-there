@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/love-intro-soft.mp4.asset.json";
-import musicAsset from "@/assets/ambient_acoustic.mp3.asset.json";
 import cardsVideo from "@/assets/love-cards-voice.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
@@ -35,7 +34,6 @@ function UpsellLove() {
   const [started, setStarted] = useState(false);
   const [stage, setStage] = useState<Stage>("video");
   const [flipped, setFlipped] = useState<number[]>([]);
-  const musicRef = useRef<HTMLAudioElement>(null);
 
   const start = () => {
     const v = videoRef.current;
@@ -43,8 +41,6 @@ function UpsellLove() {
     v.muted = false;
     v.currentTime = 0;
     v.play();
-    const m = musicRef.current;
-    if (m) { m.volume = 0.05; m.play().catch(() => {}); }
     setStarted(true);
   };
 
@@ -69,7 +65,6 @@ function UpsellLove() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background text-foreground">
-      <audio ref={musicRef} src={musicAsset.url} loop preload="auto" />
       <video
         ref={videoRef}
         src={loveVideo.url}
