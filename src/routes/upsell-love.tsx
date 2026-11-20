@@ -73,16 +73,16 @@ function UpsellLove() {
     v.muted = false;
     v.volume = 1;
     v.currentTime = 0;
-    v.play().catch(() => setStage("offer"));
+    v.play().catch((err) => {
+      if (err?.name !== "AbortError") setStage("offer");
+    });
   };
 
   const flip = (i: number) => {
-    setFlipped((prev) => {
-      if (prev.includes(i)) return prev;
-      const next = [...prev, i];
-      if (next.length === 3) setTimeout(playClosing, 1400);
-      return next;
-    });
+    if (flipped.includes(i)) return;
+    const next = [...flipped, i];
+    setFlipped(next);
+    if (next.length === 3) setTimeout(playClosing, 1400);
   };
 
   const readerChooses = () => {
@@ -105,7 +105,7 @@ function UpsellLove() {
         onSeeked={syncBg}
         onTimeUpdate={(e) => {
           syncBg();
-          if (stage === "closing" && e.currentTarget.currentTime >= 15.5) setStage("offer");
+          if (stage === "closing" && e.currentTarget.currentSrc.includes("love_closing") && e.currentTarget.currentTime >= 15.5) setStage("offer");
         }}
         src={loveVideo.url}
         poster="/images/reader-portrait.jpg"
