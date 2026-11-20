@@ -14,6 +14,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as UpsellLoveRouteImport } from './routes/upsell-love'
+import { Route as UpsellProsperityRouteImport } from './routes/upsell-prosperity'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const UpsellLoveRoute = UpsellLoveRouteImport.update({
   path: '/upsell-love',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UpsellProsperityRoute = UpsellProsperityRouteImport.update({
+  id: '/upsell-prosperity',
+  path: '/upsell-prosperity',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
   '/upsell-love': typeof UpsellLoveRoute
+  '/upsell-prosperity': typeof UpsellProsperityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
   '/upsell-love': typeof UpsellLoveRoute
+  '/upsell-prosperity': typeof UpsellProsperityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
   '/upsell-love': typeof UpsellLoveRoute
+  '/upsell-prosperity': typeof UpsellProsperityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/privacy' | '/quiz' | '/reading' | '/upsell-love'
+  fullPaths:
+    | '/'
+    | '/privacy'
+    | '/quiz'
+    | '/reading'
+    | '/upsell-love'
+    | '/upsell-prosperity'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/privacy' | '/quiz' | '/reading' | '/upsell-love'
-  id: '__root__' | '/' | '/privacy' | '/quiz' | '/reading' | '/upsell-love'
+  to:
+    | '/'
+    | '/privacy'
+    | '/quiz'
+    | '/reading'
+    | '/upsell-love'
+    | '/upsell-prosperity'
+  id:
+    | '__root__'
+    | '/'
+    | '/privacy'
+    | '/quiz'
+    | '/reading'
+    | '/upsell-love'
+    | '/upsell-prosperity'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +105,7 @@ export interface RootRouteChildren {
   QuizRoute: typeof QuizRoute
   ReadingRoute: typeof ReadingRoute
   UpsellLoveRoute: typeof UpsellLoveRoute
+  UpsellProsperityRoute: typeof UpsellProsperityRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UpsellLoveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/upsell-prosperity': {
+      id: '/upsell-prosperity'
+      path: '/upsell-prosperity'
+      fullPath: '/upsell-prosperity'
+      preLoaderRoute: typeof UpsellProsperityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuizRoute: QuizRoute,
   ReadingRoute: ReadingRoute,
   UpsellLoveRoute: UpsellLoveRoute,
+  UpsellProsperityRoute: UpsellProsperityRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
