@@ -87,8 +87,10 @@ function UpsellLove() {
         style={{
           objectPosition: "center",
           transform: "scale(0.9) translateY(4%)",
-          WebkitMaskImage: "radial-gradient(ellipse 75% 70% at 50% 50%, #000 55%, transparent 100%)",
-          maskImage: "radial-gradient(ellipse 75% 70% at 50% 50%, #000 55%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent)",
+          WebkitMaskComposite: "source-in",
+          maskComposite: "intersect",
+          maskImage: "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent)",
         }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
