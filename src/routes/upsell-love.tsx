@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/love-intro-v2.mp4.asset.json";
-import cardsVideo from "@/assets/love-cards-voice.mp4.asset.json";
+import cardsVideo from "@/assets/love-cards-voice-v2.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
   head: () => ({
@@ -86,15 +86,6 @@ function UpsellLove() {
   return (
     <div className="fixed inset-0 overflow-hidden bg-background text-foreground">
       <video
-        ref={bgRef}
-        src={loveVideo.url}
-        muted
-        playsInline
-        aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-        style={{ filter: "blur(28px) brightness(0.85)", transform: "scale(1.25)" }}
-      />
-      <video
         ref={videoRef}
         onPlay={syncBg}
         onPause={syncBg}
@@ -107,11 +98,7 @@ function UpsellLove() {
         className="absolute inset-0 h-full w-full object-cover md:object-contain"
         style={{
           objectPosition: "center",
-          transform: "scale(0.9) translateY(4%)",
-          WebkitMaskImage: "linear-gradient(to right, transparent, #000 10%, #000 90%, transparent), linear-gradient(to bottom, transparent, #000 5%, #000 92%, transparent)",
-          WebkitMaskComposite: "source-in",
-          maskComposite: "intersect",
-          maskImage: "linear-gradient(to right, transparent, #000 10%, #000 90%, transparent), linear-gradient(to bottom, transparent, #000 5%, #000 92%, transparent)",
+          transform: "translateY(4%)",
         }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
