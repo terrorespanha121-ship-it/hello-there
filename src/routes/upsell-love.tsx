@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import loveVideo from "@/assets/love-intro-v3.mp4.asset.json";
 import cardsVideo from "@/assets/love-cards-voice-v2.mp4.asset.json";
+import { ScratchCard } from "@/components/ScratchCard";
 import closingVideo from "@/assets/love_closing_v3.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-love")({
@@ -21,6 +22,8 @@ export const Route = createFileRoute("/upsell-love")({
 
 // Replace with your Whoop one-click upsell link.
 const UPSELL_CHECKOUT_URL = "https://checkout.whoop.example/love-reading";
+// 40% off downsell offered when the visitor declines
+const DOWNSELL_CHECKOUT_URL = "https://checkout.whoop.example/love-reading-40off";
 
 const LOVE_CARDS = [
   { name: "The Hidden Lover", hint: "Someone from your past still carries your energy…", img: "/images/card-fool.jpg" },
@@ -28,7 +31,7 @@ const LOVE_CARDS = [
   { name: "The Inevitable Meeting", hint: "Their name begins with a letter the cards just showed me…", img: "/images/card-tower.jpg" },
 ];
 
-type Stage = "video" | "choice" | "cards" | "reading" | "closing" | "offer";
+type Stage = "video" | "choice" | "cards" | "reading" | "closing" | "offer" | "scratch";
 
 function UpsellLove() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -42,6 +45,7 @@ function UpsellLove() {
   };
   const [started, setStarted] = useState(false);
   const [stage, setStage] = useState<Stage>("video");
+  const [scratched, setScratched] = useState(false);
   const [flipped, setFlipped] = useState<number[]>([]);
 
 
@@ -190,9 +194,39 @@ function UpsellLove() {
             <a href={UPSELL_CHECKOUT_URL} className="mt-4 flex h-14 items-center justify-center bg-gold-gradient text-center text-sm font-medium uppercase tracking-wide text-primary-foreground shadow-cta">
               Yes, reveal my love destiny ($27)
             </a>
-            <Link to="/" className="mt-3 block text-center text-xs text-foreground/50 underline">
+            <button onClick={() => setStage("scratch")} className="mt-3 block w-full text-center text-xs text-foreground/50 underline">
               No thanks, I'll leave my love life to chance…
-            </Link>
+            </button>
+          </div>
+        )}
+
+        {stage === "scratch" && (
+          <div className="fade-in mx-auto max-w-md border border-gold/40 bg-panel p-5 text-center">
+            <h2 className="font-display text-2xl text-gold">Wait… one card refused to stay in the deck</h2>
+            <p className="mt-2 text-sm text-foreground/80">Scratch the card with your finger to see what the universe saved for you.</p>
+            <div className="mt-4">
+              <ScratchCard onReveal={() => setScratched(true)}>
+                <div className="flex h-full w-full flex-col items-center justify-center bg-panel p-4">
+                  <span className="text-xs uppercase tracking-widest text-foreground/70">You received</span>
+                  <span className="font-display text-6xl text-gold">40%</span>
+                  <span className="text-sm font-medium uppercase tracking-wide text-gold">OFF</span>
+                  <span className="mt-2 text-xs text-foreground/70">your Love & Soulmate Reading</span>
+                </div>
+              </ScratchCard>
+            </div>
+            {scratched && (
+              <div className="fade-in">
+                <p className="mt-4 text-sm">
+                  <s className="text-foreground/50">$27</s> <b className="text-2xl text-gold">$16</b> — only on this page.
+                </p>
+                <a href={DOWNSELL_CHECKOUT_URL} className="mt-3 flex h-14 items-center justify-center bg-gold-gradient text-center text-sm font-medium uppercase tracking-wide text-primary-foreground shadow-cta">
+                  Yes! Claim my 40% love discount ($16)
+                </a>
+                <Link to="/" className="mt-3 block text-center text-xs text-foreground/50 underline">
+                  No, continue to the next step →
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
