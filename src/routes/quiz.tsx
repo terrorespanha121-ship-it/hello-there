@@ -275,7 +275,7 @@ function QuestionStep({
           preload="auto"
           onEnded={() => setShowOptions(true)}
           className="absolute inset-x-0 bottom-0 top-12 h-[calc(100%-3rem)] w-full object-cover"
-          style={{ objectPosition: `${VSL_FOCUS_X[index]} top`, transform: "scale(0.92)", transformOrigin: "center top", WebkitMaskImage: "radial-gradient(ellipse 75% 80% at 50% 45%, #000 55%, transparent 100%)", maskImage: "radial-gradient(ellipse 75% 80% at 50% 45%, #000 55%, transparent 100%)" }}
+          style={{ objectPosition: `${VSL_FOCUS_X[index]} top`, transform: "scale(0.92)", transformOrigin: "center top", WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 10%, #000 80%, transparent 100%)", maskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 10%, #000 80%, transparent 100%)", WebkitMaskComposite: "source-in", maskComposite: "intersect" }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background/80 to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-background via-background/80 to-transparent" />
