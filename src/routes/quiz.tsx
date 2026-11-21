@@ -9,6 +9,19 @@ import vslQ5 from "@/assets/reader-q5.mp4.asset.json";
 import nameIntro from "@/assets/reader_name_intro.mp4.asset.json";
 import shuffleLoop from "@/assets/reader_shuffle_loop.mp4.asset.json";
 import ambientMusic from "@/assets/ambient_acoustic.mp3.asset.json";
+import { generateNameVoice } from "@/lib/name-voice.functions";
+
+// Pre-warmed whisper of the visitor's name (data URL), requested on name submit.
+let nameVoicePromise: Promise<string | null> | null = null;
+function prefetchNameVoice(name: string) {
+  nameVoicePromise = generateNameVoice({ data: { name } })
+    .then((r) => (r.audio ? `data:audio/mpeg;base64,${r.audio}` : null))
+    .catch(() => null);
+}
+function waitNameVoice(ms: number): Promise<string | null> {
+  if (!nameVoicePromise) return Promise.resolve(null);
+  return Promise.race([nameVoicePromise, new Promise<null>((r) => setTimeout(() => r(null), ms))]);
+}
 
 const VSL_VIDEOS = [vslQ1.url, vslQ2.url, vslQ3.url, vslQ4.url, vslQ5.url];
 // Horizontal focus per video so the reader's face stays centered when cropped vertically.
@@ -252,6 +265,7 @@ function NameStep({
     const clean = name.trim();
     if (!clean) return;
     try { sessionStorage.setItem("reader_name", clean); } catch {}
+    prefetchNameVoice(clean);
     onSubmit();
   };
 
@@ -363,12 +377,28 @@ function QuestionStep({
     const v = videoRef.current;
     if (!v || !started) return;
     if (index === 0) onStart();
-    v.muted = initialMuted;
-    v.play().catch(() => {
-      v.muted = true;
-      setMuted(true);
-      v.play().catch(() => {});
+    let cancelled = false;
+    const startVideo = () => {
+      v.muted = initialMuted;
+      v.play().catch(() => {
+        v.muted = true;
+        setMuted(true);
+        v.play().catch(() => {});
+      });
+    };
+    if (index !== 0 || initialMuted) { startVideo(); return; }
+    // Q1: whisper the visitor's name first (max 1.2 s wait), then she continues.
+    waitNameVoice(1200).then((url) => {
+      if (cancelled) return;
+      if (!url) { startVideo(); return; }
+      const a = new Audio(url);
+      a.volume = 1;
+      v.volume = 0.15;
+      startVideo();
+      a.onended = () => { v.volume = 1; };
+      a.play().catch(() => { v.volume = 1; });
     });
+    return () => { cancelled = true; };
   }, [started]);
 
   const handleClick = (optIndex: number) => {
