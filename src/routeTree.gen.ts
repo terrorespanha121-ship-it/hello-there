@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MembersRouteImport } from './routes/members'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ReadingRouteImport } from './routes/reading'
@@ -20,6 +21,11 @@ import { Route as UpsellShieldRouteImport } from './routes/upsell-shield'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembersRoute = MembersRouteImport.update({
+  id: '/members',
+  path: '/members',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -55,6 +61,7 @@ const UpsellShieldRoute = UpsellShieldRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/members': typeof MembersRoute
   '/privacy': typeof PrivacyRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/members': typeof MembersRoute
   '/privacy': typeof PrivacyRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/members': typeof MembersRoute
   '/privacy': typeof PrivacyRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/members'
     | '/privacy'
     | '/quiz'
     | '/reading'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/members'
     | '/privacy'
     | '/quiz'
     | '/reading'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/members'
     | '/privacy'
     | '/quiz'
     | '/reading'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MembersRoute: typeof MembersRoute
   PrivacyRoute: typeof PrivacyRoute
   QuizRoute: typeof QuizRoute
   ReadingRoute: typeof ReadingRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/members': {
+      id: '/members'
+      path: '/members'
+      fullPath: '/members'
+      preLoaderRoute: typeof MembersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MembersRoute: MembersRoute,
   PrivacyRoute: PrivacyRoute,
   QuizRoute: QuizRoute,
   ReadingRoute: ReadingRoute,

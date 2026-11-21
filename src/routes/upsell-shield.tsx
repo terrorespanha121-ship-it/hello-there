@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import shieldAsset from "@/assets/shield_ritual_v2.mp4.asset.json";
+import downsellAsset from "@/assets/shield_downsell.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-shield")({
   head: () => ({
@@ -19,11 +20,24 @@ export const Route = createFileRoute("/upsell-shield")({
 
 // Replace with your Whoop one-click link when ready.
 const CHECKOUT_URL = "#checkout-shield-37";
+const DOWNSELL_CHECKOUT_URL = "#checkout-shield-19";
 const OFFER_AT = 70; // seconds: "only twelve names" → button call
 
 function UpsellShield() {
   const ref = useRef<HTMLVideoElement>(null);
   const [offer, setOffer] = useState(false);
+  const [downsell, setDownsell] = useState(false);
+  const [downOffer, setDownOffer] = useState(false);
+  const dref = useRef<HTMLVideoElement>(null);
+
+  const declineMain = () => {
+    ref.current?.pause();
+    setDownsell(true);
+    setTimeout(() => {
+      const d = dref.current;
+      if (d) { d.muted = false; d.play().catch(() => setDownOffer(true)); }
+    }, 50);
+  };
 
   useEffect(() => {
     const v = ref.current;
@@ -69,12 +83,42 @@ function UpsellShield() {
             <a href={CHECKOUT_URL} className="mt-4 flex h-14 items-center justify-center bg-gold-gradient text-center text-sm font-medium uppercase tracking-wide text-primary-foreground shadow-cta">
               Yes, seal my protection ($37)
             </a>
-            <Link to="/" className="mt-3 block text-center text-xs text-foreground/50 underline">
+            <button type="button" onClick={declineMain} className="mt-3 block w-full text-center text-xs text-foreground/50 underline">
               No thanks, I'll leave my energy unprotected →
-            </Link>
+            </button>
           </div>
         )}
       </div>
+      {downsell && (
+        <div className="fixed inset-0 z-50 overflow-hidden bg-background">
+          <video
+            ref={dref}
+            src={downsellAsset.url}
+            playsInline
+            preload="auto"
+            onTimeUpdate={(e) => { if (!downOffer && e.currentTarget.currentTime >= e.currentTarget.duration - 6) setDownOffer(true); }}
+            onEnded={() => setDownOffer(true)}
+            className="absolute inset-0 h-full w-full object-cover md:object-contain"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 p-5 pb-8">
+            {!downOffer && <p className="text-center text-sm text-foreground/80">Your reader is speaking •••</p>}
+            {downOffer && (
+              <div className="fade-in mx-auto max-w-md border border-gold/40 bg-panel p-5">
+                <h2 className="text-center font-display text-2xl text-gold">Your Final Blessing</h2>
+                <p className="mt-2 text-center text-sm text-foreground/80">She covers the sacred oils and herbs — you only cover the consecration.</p>
+                <p className="mt-2 text-center text-sm"><s className="text-foreground/50">$37</s> <b className="text-2xl text-gold">$19</b></p>
+                <a href={DOWNSELL_CHECKOUT_URL} className="mt-4 flex h-14 items-center justify-center bg-gold-gradient text-center text-sm font-medium uppercase tracking-wide text-primary-foreground shadow-cta">
+                  Claim my 7-day shield for $19
+                </a>
+                <Link to="/members" className="mt-3 block text-center text-xs text-foreground/50 underline">
+                  No thanks, take me to my reading →
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
