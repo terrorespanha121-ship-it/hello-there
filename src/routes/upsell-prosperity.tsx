@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import introAsset from "@/assets/prosperity_intro.mp4.asset.json";
+import painAsset from "@/assets/prosperity_pain.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-prosperity")({
   head: () => ({
@@ -31,7 +32,7 @@ const PAINS = [
 // The wheel always lands on 50% OFF (slice index 0)
 const SLICES = ["50% OFF", "10% OFF", "20% OFF", "5% OFF", "30% OFF", "15% OFF"];
 
-type Stage = "video" | "seal" | "offer" | "wheel";
+type Stage = "video" | "seal" | "pain" | "offer" | "wheel";
 
 function UpsellProsperity() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -54,7 +55,11 @@ function UpsellProsperity() {
 
   const pickSeal = (i: number) => {
     setSeal(i);
-    setTimeout(() => setStage("offer"), 2200);
+    setTimeout(() => {
+      setStage("pain");
+      const v = videoRef.current;
+      if (v) { v.src = painAsset.url; v.muted = false; v.currentTime = 0; v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
+    }, 1200);
   };
 
   const spin = () => {
@@ -78,7 +83,8 @@ function UpsellProsperity() {
           poster="/images/reader-portrait.jpg"
           playsInline
           autoPlay
-          onEnded={() => setStage((s) => (s === "video" ? "seal" : s))}
+          onEnded={() => setStage((s) => (s === "video" ? "seal" : s === "pain" ? "offer" : s))}
+          onTimeUpdate={(e) => { const v = e.currentTarget; if (stage === "pain" && v.duration && v.currentTime >= v.duration - 10) setStage("offer"); }}
           className="absolute inset-0 h-full w-full scale-[1.08] object-cover md:scale-100 md:object-contain"
         />
       ) : (
@@ -91,7 +97,8 @@ function UpsellProsperity() {
       </div>
 
       <div className="absolute inset-x-0 bottom-0 z-20 p-5 pb-8">
-        {stage === "video" && <p className="text-center text-sm text-foreground/80">Your reader is speaking •••</p>}
+        <link rel="preload" as="video" href={painAsset.url} />
+        {(stage === "video" || stage === "pain") && <p className="text-center text-sm text-foreground/80">Your reader is speaking •••</p>}
 
         {stage === "seal" && (
           <div className="fade-in mx-auto max-w-md text-center">
