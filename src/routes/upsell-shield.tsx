@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import shieldAsset from "@/assets/shield_ritual.mp4.asset.json";
+import shieldAsset from "@/assets/shield_ritual_v2.mp4.asset.json";
 
 export const Route = createFileRoute("/upsell-shield")({
   head: () => ({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/upsell-shield")({
 
 // Replace with your Whoop one-click link when ready.
 const CHECKOUT_URL = "#checkout-shield-37";
-const OFFER_AT = 72; // seconds: "only twelve names" → button call
+const OFFER_AT = 70; // seconds: "only twelve names" → button call
 
 function UpsellShield() {
   const ref = useRef<HTMLVideoElement>(null);
