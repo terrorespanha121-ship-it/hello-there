@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PORTALS, PortalBody } from "@/components/sanctuary/Portals";
+import { loadOwned, type Product } from "@/lib/entitlements";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 export const Route = createFileRoute("/members")({
@@ -117,16 +119,19 @@ function Burst({ k }: { k: number }) {
 }
 
 /* ---------- app shell ---------- */
-type Tab = "altar" | "card" | "oracle" | "sound" | "vault";
+type Tab = "portals" | "altar" | "card" | "oracle" | "sound" | "vault";
 
 function Sanctuary() {
   const [name, setName] = useState("Beloved");
-  const [tab, setTab] = useState<Tab>("card");
+  const [tab, setTab] = useState<Tab>("portals");
   const [offer, setOffer] = useState<OfferKey | null>(null);
   const [streak, setStreak] = useState(1);
   const [toast, setToast] = useState(false);
+  const [owned, setOwned] = useState<Product[]>(["front"]);
+  const [portal, setPortal] = useState<Product | null>(null);
 
   useEffect(() => {
+    setOwned(loadOwned());
     const n = sessionStorage.getItem("reader_name"); if (n) setName(n);
     const today = new Date().toDateString();
     const last = localStorage.getItem("sx_last"); let s = Number(localStorage.getItem("sx_streak") || "0");
@@ -136,7 +141,7 @@ function Sanctuary() {
     return () => clearTimeout(t);
   }, []);
 
-  const tabs: [Tab, string, string][] = [["altar", "Altar", "🕯"], ["card", "Card", "✦"], ["oracle", "Oracle", "◉"], ["sound", "Sound", "∿"], ["vault", "Vault", "🔒"]];
+  const tabs: [Tab, string, string][] = [["portals", "Readings", "📜"], ["altar", "Altar", "🕯"], ["card", "Card", "✦"], ["oracle", "Oracle", "◉"], ["sound", "Sound", "∿"], ["vault", "Vault", "🔒"]];
   const vib = Math.min(99, 61 + streak * 5);
 
   return (
@@ -162,6 +167,7 @@ function Sanctuary() {
       </header>
 
       <main className="relative mx-auto mt-6 max-w-md px-5">
+        {tab === "portals" && (portal ? <><button onClick={() => setPortal(null)} className="mb-3 text-xs text-gold">← All readings</button><PortalBody p={portal} name={name} /></> : <Portals owned={owned} onOpen={setPortal} />)}
         {tab === "altar" && <Altar name={name} onOffer={setOffer} />}
         {tab === "card" && <DailyCard name={name} onOffer={setOffer} />}
         {tab === "oracle" && <Oracle />}
@@ -375,6 +381,32 @@ function Vault({ onOffer }: { onOffer: (k: OfferKey) => void }) {
             <p className="mt-1 text-sm text-foreground/70">{o.desc}</p>
             <p className="mt-2 text-sm"><span className="mr-2 text-foreground/40 line-through">{o.old}</span><b className="text-gold">{o.price}</b></p>
           </button>
+        );
+      })}
+    </section>
+  );
+}
+
+/* ---------- purchased readings ---------- */
+function Portals({ owned, onOpen }: { owned: Product[]; onOpen: (p: Product) => void }) {
+  const all: Product[] = ["front", "love", "prosperity", "shield"];
+  return (
+    <section className="space-y-3">
+      <h2 className="text-center font-display text-xl text-gold">Your Readings</h2>
+      {all.map((p) => {
+        const o = PORTALS[p], has = owned.includes(p);
+        return has ? (
+          <button key={p} onClick={() => { onOpen(p); buzz(15); chime(); }} className="sx-shimmer flex w-full items-center gap-3 rounded-2xl border border-gold/50 bg-card p-4 text-left shadow-gold-soft">
+            <span className="text-3xl">{o.icon}</span>
+            <span className="flex-1"><span className="block font-display text-gold">{o.title}</span><span className="text-xs text-foreground/60">{o.sub} · Open</span></span>
+            <span className="text-gold">→</span>
+          </button>
+        ) : (
+          <a key={p} href={o.url} className="block rounded-2xl border border-gold/20 bg-card/50 p-4">
+            <span className="flex items-center gap-3"><span className="text-3xl opacity-40 grayscale">{o.icon}</span>
+              <span className="flex-1"><span className="block font-display text-gold/70">🔒 {o.title}</span><span className="text-xs text-foreground/50">{o.teaser}</span></span></span>
+            <span className="mt-3 block rounded-full bg-gold-gradient py-2 text-center text-xs font-bold text-primary-foreground">Unlock for {o.price}</span>
+          </a>
         );
       })}
     </section>
