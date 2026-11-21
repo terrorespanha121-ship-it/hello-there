@@ -35,6 +35,15 @@ export function initTracking() {
   if (typeof window === "undefined" || (window as any).__sxTrack) return;
   (window as any).__sxTrack = true;
   captureUtms();
+  // Utmify UTM script (official snippet, decoded).
+  if (!document.querySelector("script[src*='cdn.utmify.com.br']")) {
+    const u = document.createElement("script");
+    u.src = "https://cdn.utmify.com.br/scripts/utms/latest.js";
+    u.async = true; u.defer = true;
+    u.setAttribute("data-utmify-prevent-xcod-sck", "");
+    u.setAttribute("data-utmify-prevent-subids", "");
+    document.head.appendChild(u);
+  }
   /* eslint-disable */
   const w = window as any;
   if (!w.fbq) {
