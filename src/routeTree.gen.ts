@@ -15,6 +15,7 @@ import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as UpsellLoveRouteImport } from './routes/upsell-love'
 import { Route as UpsellProsperityRouteImport } from './routes/upsell-prosperity'
+import { Route as UpsellShieldRouteImport } from './routes/upsell-shield'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const UpsellProsperityRoute = UpsellProsperityRouteImport.update({
   path: '/upsell-prosperity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UpsellShieldRoute = UpsellShieldRouteImport.update({
+  id: '/upsell-shield',
+  path: '/upsell-shield',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/reading': typeof ReadingRoute
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
+  '/upsell-shield': typeof UpsellShieldRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/reading': typeof ReadingRoute
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
+  '/upsell-shield': typeof UpsellShieldRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/reading': typeof ReadingRoute
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
+  '/upsell-shield': typeof UpsellShieldRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/reading'
     | '/upsell-love'
     | '/upsell-prosperity'
+    | '/upsell-shield'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/reading'
     | '/upsell-love'
     | '/upsell-prosperity'
+    | '/upsell-shield'
   id:
     | '__root__'
     | '/'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/reading'
     | '/upsell-love'
     | '/upsell-prosperity'
+    | '/upsell-shield'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +118,7 @@ export interface RootRouteChildren {
   ReadingRoute: typeof ReadingRoute
   UpsellLoveRoute: typeof UpsellLoveRoute
   UpsellProsperityRoute: typeof UpsellProsperityRoute
+  UpsellShieldRoute: typeof UpsellShieldRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UpsellProsperityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/upsell-shield': {
+      id: '/upsell-shield'
+      path: '/upsell-shield'
+      fullPath: '/upsell-shield'
+      preLoaderRoute: typeof UpsellShieldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -162,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReadingRoute: ReadingRoute,
   UpsellLoveRoute: UpsellLoveRoute,
   UpsellProsperityRoute: UpsellProsperityRoute,
+  UpsellShieldRoute: UpsellShieldRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

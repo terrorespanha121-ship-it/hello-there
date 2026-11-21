@@ -169,7 +169,7 @@ function UpsellProsperity() {
                 <a href={DISCOUNT_CHECKOUT_URL} className="mt-3 flex h-14 items-center justify-center bg-gold-gradient text-center text-sm font-medium uppercase tracking-wide text-primary-foreground shadow-cta">
                   Yes! Claim my discounted access ($67)
                 </a>
-                <Link to="/" className="mt-3 block text-center text-xs text-foreground/50 underline">
+                <Link to="/upsell-shield" className="mt-3 block text-center text-xs text-foreground/50 underline">
                   No thanks, continue to the next step →
                 </Link>
               </div>
