@@ -17,6 +17,7 @@ import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as UpsellLoveRouteImport } from './routes/upsell-love'
 import { Route as UpsellProsperityRouteImport } from './routes/upsell-prosperity'
 import { Route as UpsellShieldRouteImport } from './routes/upsell-shield'
+import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const UpsellShieldRoute = UpsellShieldRouteImport.update({
   path: '/upsell-shield',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWhopWebhookRoute = ApiPublicWhopWebhookRouteImport.update({
+  id: '/api/public/whop-webhook',
+  path: '/api/public/whop-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
   '/upsell-shield': typeof UpsellShieldRoute
+  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
   '/upsell-shield': typeof UpsellShieldRoute
+  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
   '/upsell-shield': typeof UpsellShieldRoute
+  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/upsell-love'
     | '/upsell-prosperity'
     | '/upsell-shield'
+    | '/api/public/whop-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/upsell-love'
     | '/upsell-prosperity'
     | '/upsell-shield'
+    | '/api/public/whop-webhook'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/upsell-love'
     | '/upsell-prosperity'
     | '/upsell-shield'
+    | '/api/public/whop-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   UpsellLoveRoute: typeof UpsellLoveRoute
   UpsellProsperityRoute: typeof UpsellProsperityRoute
   UpsellShieldRoute: typeof UpsellShieldRoute
+  ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UpsellShieldRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whop-webhook': {
+      id: '/api/public/whop-webhook'
+      path: '/api/public/whop-webhook'
+      fullPath: '/api/public/whop-webhook'
+      preLoaderRoute: typeof ApiPublicWhopWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   UpsellLoveRoute: UpsellLoveRoute,
   UpsellProsperityRoute: UpsellProsperityRoute,
   UpsellShieldRoute: UpsellShieldRoute,
+  ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
