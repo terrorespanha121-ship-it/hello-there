@@ -32,7 +32,7 @@ function PrivacyPage() {
 
         <h2 className="font-display text-2xl text-gold">Payments</h2>
         <p>
-          Purchases are handled by our checkout provider, <strong className="text-gold">Cakto</strong>, under its
+          Purchases are handled by our checkout provider, <strong className="text-gold">Whop</strong>, under its
           own privacy policy.
         </p>
 

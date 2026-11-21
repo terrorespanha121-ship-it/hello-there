@@ -19,8 +19,8 @@ export const Route = createFileRoute("/upsell-prosperity")({
 });
 
 // Replace with your Whoop one-click links when ready.
-const MAIN_CHECKOUT_URL = "#checkout-prosperity-97";
-const DISCOUNT_CHECKOUT_URL = "#checkout-prosperity-67";
+const MAIN_CHECKOUT_URL = "https://whop.com/checkout/ch_O3k7CrZb82pIAtF/";
+const DISCOUNT_CHECKOUT_URL = "https://whop.com/checkout/ch_iqM4iZfE54nDq1j/";
 // Set to the HeyGen intro video once uploaded (null = portrait image).
 const INTRO_VIDEO_URL: string | null = introAsset.url;
 

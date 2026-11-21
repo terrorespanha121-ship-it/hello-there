@@ -21,9 +21,9 @@ export const Route = createFileRoute("/upsell-love")({
 });
 
 // Replace with your Whoop one-click upsell link.
-const UPSELL_CHECKOUT_URL = "https://checkout.whoop.example/love-reading";
+const UPSELL_CHECKOUT_URL = "https://whop.com/checkout/ch_UEZxbSu0T6r3j4A/";
 // 40% off downsell offered when the visitor declines
-const DOWNSELL_CHECKOUT_URL = "https://checkout.whoop.example/love-reading-40off";
+const DOWNSELL_CHECKOUT_URL = "https://whop.com/checkout/ch_4wj9dy0Ic8GUcy8/";
 
 const LOVE_CARDS = [
   { name: "The Hidden Lover", hint: "Someone from your past still carries your energy…", img: "/images/card-fool.jpg" },

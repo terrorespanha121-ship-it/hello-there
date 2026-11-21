@@ -26,7 +26,7 @@ export const Route = createFileRoute("/reading")({
 
 const VSL_VIDEO_URL = readingVsl.url;
 const POSTER_IMAGE = "/images/poster.jpg";
-const CHECKOUT_URL = "#checkout-front-27";
+const CHECKOUT_URL = "https://whop.com/checkout/ch_8Kf4x4fkLSGX3GO/";
 // Second of the video where the pitch starts and the checkout button is revealed.
 const PITCH_SECONDS = 1076; // 17:56 — the $27 price is said.
 const PROGRESS_KEY = "vsl-progress";

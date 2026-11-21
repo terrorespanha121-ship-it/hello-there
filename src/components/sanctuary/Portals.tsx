@@ -6,9 +6,9 @@ const buzz = (p: number | number[]) => { try { navigator.vibrate?.(p); } catch {
 // Placeholder Whop links — swap for real ones.
 export const PORTALS: Record<Product, { title: string; sub: string; icon: string; pdf: string; price: string; url: string; teaser: string }> = {
   front: { title: "The Sacred Golden Scroll", sub: "Past · Present · Destiny", icon: "📜", pdf: "/downloads/sacred-golden-scroll.pdf", price: "", url: "", teaser: "" },
-  love: { title: "The Sacred Flame", sub: "Love & Twin Flames", icon: "❤️‍🔥", pdf: "/downloads/sacred-flame-love-reading.pdf", price: "$27", url: "#whop-love", teaser: "The Soulmate Mirror test, the cord-cutting ceremony and your 3 love cards." },
-  prosperity: { title: "Vault of Abundance 2027", sub: "The 5 Secret Seals", icon: "🗝", pdf: "/downloads/vault-of-abundance-2027.pdf", price: "$97", url: "#whop-prosperity", teaser: "Open the 5 sealed doors and your 2027 luck calendar." },
-  shield: { title: "The Sacred Shield", sub: "7-Day Protection Ritual", icon: "🛡", pdf: "/downloads/sacred-shield-7-day-ritual.pdf", price: "$37", url: "#whop-shield", teaser: "Light one candle a day for 7 days and seal your energy." },
+  love: { title: "The Sacred Flame", sub: "Love & Twin Flames", icon: "❤️‍🔥", pdf: "/downloads/sacred-flame-love-reading.pdf", price: "$27", url: "https://whop.com/checkout/plan_bZraOfdRUCTGm", teaser: "The Soulmate Mirror test, the cord-cutting ceremony and your 3 love cards." },
+  prosperity: { title: "Vault of Abundance 2027", sub: "The 5 Secret Seals", icon: "🗝", pdf: "/downloads/vault-of-abundance-2027.pdf", price: "$97", url: "https://whop.com/checkout/plan_YwEwLwMnWtodI", teaser: "Open the 5 sealed doors and your 2027 luck calendar." },
+  shield: { title: "The Sacred Shield", sub: "7-Day Protection Ritual", icon: "🛡", pdf: "/downloads/sacred-shield-7-day-ritual.pdf", price: "$37", url: "https://whop.com/checkout/plan_8no2N6BqiV24Y", teaser: "Light one candle a day for 7 days and seal your energy." },
 };
 
 function useStored<T>(key: string, init: T) {

@@ -19,8 +19,8 @@ export const Route = createFileRoute("/upsell-shield")({
 });
 
 // Replace with your Whoop one-click link when ready.
-const CHECKOUT_URL = "#checkout-shield-37";
-const DOWNSELL_CHECKOUT_URL = "#checkout-shield-19";
+const CHECKOUT_URL = "https://whop.com/checkout/ch_xiGqimh88bjKPeS/";
+const DOWNSELL_CHECKOUT_URL = "https://whop.com/checkout/ch_TxiPks24Hc9CfdE/";
 const OFFER_AT = 70; // seconds: "only twelve names" → button call
 
 function UpsellShield() {
