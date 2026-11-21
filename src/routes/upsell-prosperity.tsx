@@ -36,6 +36,7 @@ type Stage = "video" | "seal" | "pain" | "offer" | "wheel";
 
 function UpsellProsperity() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const painRef = useRef<HTMLVideoElement>(null);
   const [stage, setStage] = useState<Stage>(INTRO_VIDEO_URL ? "video" : "seal");
   const [seal, setSeal] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
@@ -55,11 +56,10 @@ function UpsellProsperity() {
 
   const pickSeal = (i: number) => {
     setSeal(i);
-    setTimeout(() => {
-      setStage("pain");
-      const v = videoRef.current;
-      if (v) { v.src = painAsset.url; v.muted = false; v.currentTime = 0; v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
-    }, 1200);
+    const v = painRef.current;
+    if (v) { v.muted = false; v.currentTime = 0; v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
+    videoRef.current?.pause();
+    setStage("pain");
   };
 
   const spin = () => {
@@ -83,11 +83,22 @@ function UpsellProsperity() {
           poster="/images/reader-portrait.jpg"
           playsInline
           autoPlay
-          onEnded={() => setStage((s) => (s === "video" ? "seal" : s === "pain" ? "offer" : s))}
-          onTimeUpdate={(e) => { const v = e.currentTarget; if (stage === "pain" && v.duration && v.currentTime >= v.duration - 10) setStage("offer"); }}
-          className="absolute inset-0 h-full w-full scale-[1.08] object-cover md:scale-100 md:object-contain"
+          onEnded={() => setStage((s) => (s === "video" ? "seal" : s))}
+          className={`absolute inset-0 h-full w-full scale-[1.08] object-cover md:scale-100 md:object-contain ${seal !== null && stage !== "seal" ? "invisible" : ""}`}
         />
-      ) : (
+      ) : null}
+      {INTRO_VIDEO_URL && (
+        <video
+          ref={painRef}
+          src={painAsset.url}
+          preload="auto"
+          playsInline
+          onEnded={() => setStage((s) => (s === "pain" ? "offer" : s))}
+          onTimeUpdate={(e) => { const v = e.currentTarget; if (stage === "pain" && v.duration && v.currentTime >= v.duration - 10) setStage("offer"); }}
+          className={`absolute inset-0 h-full w-full scale-[1.08] object-cover md:scale-100 md:object-contain ${seal !== null && stage !== "seal" ? "" : "invisible"}`}
+        />
+      )}
+      {!INTRO_VIDEO_URL && (
         <img src="/images/reader-portrait.jpg" alt="Your reader" className="absolute inset-0 h-full w-full object-cover md:object-contain" />
       )}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
@@ -97,7 +108,6 @@ function UpsellProsperity() {
       </div>
 
       <div className="absolute inset-x-0 bottom-0 z-20 p-5 pb-8">
-        <link rel="preload" as="video" href={painAsset.url} />
         {(stage === "video" || stage === "pain") && <p className="text-center text-sm text-foreground/80">Your reader is speaking •••</p>}
 
         {stage === "seal" && (
