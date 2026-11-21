@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { initTracking, trackPageView } from "../lib/tracking";
 
 function NotFoundComponent() {
   return (
@@ -127,6 +128,11 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  useEffect(() => {
+    initTracking();
+    return router.subscribe("onResolved", (e) => { if (e.pathChanged) trackPageView(); });
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>

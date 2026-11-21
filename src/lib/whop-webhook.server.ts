@@ -116,3 +116,71 @@ export async function sendBrevo(to: string, name: string, subject: string, html:
   });
   if (!res.ok) throw new Error(`Brevo failed [${res.status}]: ${await res.text()}`);
 }
+
+// Canonical ticket in USD per plan: the same value is reported no matter the buyer's currency, tax or FX.
+export const PLAN_PRICE_USD: Record<string, number> = {
+  plan_B7uUAUp9gdfSH: 27, plan_bZraOfdRUCTGm: 27, plan_XwPkk2V3E9wNW: 16,
+  plan_YwEwLwMnWtodI: 97, plan_Q7dYpQIFv8khA: 67, plan_8no2N6BqiV24Y: 37, plan_JBwRz2KExCBxV: 19,
+};
+
+const TK = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "src", "sck", "fbclid", "fbp", "fbc"];
+export function trackingFrom(d: any): Record<string, string | null> {
+  const pools = [d?.metadata, d?.checkout?.metadata, d?.membership?.metadata, d?.tracking, d?.utm, d];
+  const out: Record<string, string | null> = {};
+  for (const k of TK) {
+    let v: any = null;
+    for (const p of pools) if (p && typeof p === "object" && p[k]) { v = p[k]; break; }
+    out[k] = v ? String(v).slice(0, 300) : null;
+  }
+  return out;
+}
+
+const fmt = (t: Date) => t.toISOString().slice(0, 19).replace("T", " ");
+async function sha(v?: string | null) {
+  if (!v) return undefined;
+  const h = await crypto.subtle.digest("SHA-256", enc.encode(v.trim().toLowerCase()));
+  return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function sendUtmify(o: { orderId: string; planId: string; product: Product; usd: number; email: string; name: string; country: string | null; tk: Record<string, string | null>; created: Date }) {
+  const token = process.env["UTMIFY_API_TOKEN"];
+  if (!token) throw new Error("UTMIFY_API_TOKEN missing");
+  const cents = Math.round(o.usd * 100);
+  const res = await fetch("https://api.utmify.com.br/api-credentials/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-token": token },
+    body: JSON.stringify({
+      orderId: o.orderId, platform: "Whop", paymentMethod: "credit_card", status: "paid",
+      createdAt: fmt(o.created), approvedDate: fmt(o.created), refundedAt: null,
+      customer: { name: o.name, email: o.email, phone: null, document: null, ...(o.country ? { country: o.country } : {}) },
+      products: [{ id: o.product, name: INFO[o.product].title, planId: o.planId, planName: INFO[o.product].title, quantity: 1, priceInCents: cents }],
+      trackingParameters: { src: o.tk["src"], sck: o.tk["sck"], utm_source: o.tk["utm_source"], utm_campaign: o.tk["utm_campaign"], utm_medium: o.tk["utm_medium"], utm_content: o.tk["utm_content"], utm_term: o.tk["utm_term"] },
+      commission: { totalPriceInCents: cents, gatewayFeeInCents: 0, userCommissionInCents: cents, currency: "USD" },
+    }),
+  });
+  if (!res.ok) throw new Error(`Utmify failed [${res.status}]: ${await res.text()}`);
+}
+
+export const META_PIXEL_ID = "1541740401126606";
+export async function sendMetaPurchase(o: { eventId: string; product: Product; usd: number; email: string; name: string; country: string | null; tk: Record<string, string | null>; created: Date; ip?: string | null; ua?: string | null }) {
+  const token = process.env["FB_CAPI_TOKEN"];
+  if (!token) throw new Error("FB_CAPI_TOKEN missing");
+  const [first, ...rest] = o.name.split(" ");
+  const fbc = o.tk["fbc"] ?? (o.tk["fbclid"] ? `fb.1.${o.created.getTime()}.${o.tk["fbclid"]}` : undefined);
+  const user_data: Record<string, unknown> = {
+    em: [await sha(o.email)], fn: first ? [await sha(first)] : undefined, ln: rest.length ? [await sha(rest.join(" "))] : undefined,
+    country: o.country ? [await sha(o.country)] : undefined, external_id: [await sha(o.email)],
+    fbp: o.tk["fbp"] ?? undefined, fbc, client_ip_address: o.ip ?? undefined, client_user_agent: o.ua ?? undefined,
+  };
+  const res = await fetch(`https://graph.facebook.com/v21.0/${META_PIXEL_ID}/events?access_token=${encodeURIComponent(token)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: [{
+      event_name: "Purchase", event_time: Math.floor(o.created.getTime() / 1000), event_id: o.eventId,
+      action_source: "website", event_source_url: SITE,
+      user_data: JSON.parse(JSON.stringify(user_data)),
+      custom_data: { currency: "USD", value: o.usd, content_ids: [o.product], content_type: "product", content_name: INFO[o.product].title },
+    }] }),
+  });
+  if (!res.ok) throw new Error(`Meta CAPI failed [${res.status}]: ${await res.text()}`);
+}
