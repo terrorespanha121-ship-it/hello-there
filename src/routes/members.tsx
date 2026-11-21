@@ -19,7 +19,6 @@ export const Route = createFileRoute("/members")({
 // Placeholder checkout links — swap for real Whop links.
 const OFFERS = {
   emergency: { title: "Emergency Reading with the Reader", price: "$27", old: "$97", url: "#whop-emergency", desc: "A deep Celtic Cross on the hidden presence the card revealed — answered in your name." },
-  oracle: { title: "Full Karmic Answer", price: "$19", old: "$47", url: "#whop-oracle", desc: "The 3 exact steps to release this block, consecrated in your name." },
   candle: { title: "21-Day Acceleration Candle", price: "$67", old: "$147", url: "#whop-candle", desc: "The Reader lights a physical 21-day candle for your intention on her altar." },
   synastry: { title: "Love Synastry Map", price: "$29", old: "$79", url: "#whop-synastry", desc: "Your birth date + theirs: soulmate or past-life lesson?" },
   moon: { title: "Moon Circle Club", price: "$14.90/mo", old: "$39", url: "#whop-moon", desc: "New & Full Moon rituals every 15 days, guided by the Reader." },
@@ -36,10 +35,10 @@ const CARDS = [
   { name: "Strength", glyph: "∞", msg: "Your softness is your power. Stay gentle and the obstacle dissolves." },
 ];
 const ORACLE = [
-  "The guides see a karmic root beneath this. It is older than this relationship…",
-  "Yes — but a cord from your past is pulling against it. It must be cut first…",
-  "A sign will come through a repeated number. But there is a warning attached…",
-  "Someone close is drawing from your energy. The guides want to show you who…",
+  "The guides see an old root beneath this. Tonight, write what you are ready to release on paper and burn it safely by a candle. The path opens after you let go.",
+  "Yes — but a cord from your past is pulling against it. Speak their name once, then say: 'I release you with love.' Your heart will feel lighter within 3 days.",
+  "A sign will come through a repeated number. When you see it, pause and make your wish out loud. The answer follows within the week.",
+  "Someone close is drawing from your energy. For 7 mornings, imagine a golden light around you before you speak to anyone. Your strength returns.",
 ];
 const FREQS = [
   { hz: 528, label: "Miracles & Renewal" },
@@ -133,7 +132,7 @@ function Sanctuary() {
     const last = localStorage.getItem("sx_last"); let s = Number(localStorage.getItem("sx_streak") || "0");
     if (last !== today) { s = last === new Date(Date.now() - 864e5).toDateString() ? s + 1 : 1; localStorage.setItem("sx_streak", String(s)); localStorage.setItem("sx_last", today); }
     setStreak(Math.max(1, s));
-    const t = setTimeout(() => { setToast(true); buzz(30); }, 9000);
+    const t = setTimeout(() => { if (!sessionStorage.getItem("sx_toast")) { sessionStorage.setItem("sx_toast", "1"); setToast(true); } }, 45000);
     return () => clearTimeout(t);
   }, []);
 
@@ -146,9 +145,9 @@ function Sanctuary() {
       <div className="pointer-events-none fixed inset-x-0 top-0 h-80" style={{ background: "radial-gradient(ellipse at 50% 0%, oklch(55% 0.15 300 / .25), transparent 70%)" }} />
 
       {toast && (
-        <button onClick={() => { setToast(false); setOffer("candle"); }} className="sx-toast fixed inset-x-3 top-3 z-40 flex items-center gap-3 rounded-2xl border border-gold/40 bg-card/95 p-3 text-left shadow-gold backdrop-blur">
+        <button onClick={() => { setToast(false); setTab("altar"); }} className="sx-toast fixed inset-x-3 top-3 z-40 flex items-center gap-3 rounded-2xl border border-gold/40 bg-card/95 p-3 text-left shadow-gold backdrop-blur">
           <span className="text-2xl">🔔</span>
-          <span className="text-xs"><b className="text-gold">The Reader</b> placed an intention under your name 12 minutes ago. Touch to receive your blessing.</span>
+          <span className="text-xs"><b className="text-gold">The Reader</b> lit a gift candle for you today. Touch to see what it means.</span>
         </button>
       )}
 
@@ -165,7 +164,7 @@ function Sanctuary() {
       <main className="relative mx-auto mt-6 max-w-md px-5">
         {tab === "altar" && <Altar name={name} onOffer={setOffer} />}
         {tab === "card" && <DailyCard name={name} onOffer={setOffer} />}
-        {tab === "oracle" && <Oracle onOffer={setOffer} />}
+        {tab === "oracle" && <Oracle />}
         {tab === "sound" && <Frequencies onOffer={setOffer} />}
         {tab === "vault" && <Vault onOffer={setOffer} />}
       </main>
@@ -207,9 +206,9 @@ function OfferSheet({ k, name, onClose }: { k: OfferKey; name: string; onClose: 
 
 function LockedSeal({ text, cta, onClick }: { text: ReactNode; cta: string; onClick: () => void }) {
   return (
-    <div className="sx-toast mt-5 rounded-2xl border border-destructive/40 bg-card p-4 text-left">
+    <div className="sx-toast mt-5 rounded-2xl border border-gold/30 bg-card p-4 text-left">
       <p className="text-sm text-foreground/90">{text}</p>
-      <button onClick={onClick} className="sx-shimmer mt-3 w-full animate-[cta-pulse_2s_ease-in-out_infinite] rounded-full bg-gold-gradient py-3 text-sm font-bold text-primary-foreground shadow-gold">{cta}</button>
+      <button onClick={onClick} className="sx-shimmer mt-3 w-full rounded-full bg-gold-gradient py-3 text-sm font-bold text-primary-foreground shadow-gold">{cta}</button>
     </div>
   );
 }
@@ -249,8 +248,8 @@ function DailyCard({ name, onOffer }: { name: string; onOffer: (k: OfferKey) => 
         <>
           <p className="sx-toast mt-6 text-sm italic text-foreground/85">“{card.msg}”</p>
           <LockedSeal
-            text={<><b className="text-destructive">⚠ Warning, {name}:</b> this arcana also revealed a <b>hidden presence</b> in your love field within the next 48 hours. The Reader opened an emergency channel on her altar.</>}
-            cta="Reveal the hidden presence →" onClick={() => onOffer("emergency")} />
+            text={<>Want to go deeper, {name}? The Reader can do a full personal reading on what this card means for your love life.</>}
+            cta="See my personal reading →" onClick={() => onOffer("emergency")} />
         </>
       )}
     </section>
@@ -284,15 +283,15 @@ function Altar({ name, onOffer }: { name: string; onOffer: (k: OfferKey) => void
       <p className="mt-1 font-display text-3xl tabular-nums">{d}d {h}h {m}m {sec}s</p>
       <p className="text-xs text-foreground/60">of protection remaining</p>
       {!lit ? <HoldButton label="Hold to feed the flame" onDone={() => { setLit(true); setBurst(Date.now()); }} /> : (
-        <LockedSeal text={<>Your flame grew stronger, {name}. But your 7-day shield <b>will expire</b>. Seal your flame for all of 2027 with a physical 21-day candle on the Reader's altar.</>}
-          cta="Seal my flame for 21 days →" onClick={() => onOffer("candle")} />
+        <LockedSeal text={<>Your flame grew stronger, {name}. Come back tomorrow to keep it burning. If you'd like, the Reader can also light a real 21-day candle for you on her altar.</>}
+          cta="Learn about the 21-day candle →" onClick={() => onOffer("candle")} />
       )}
     </section>
   );
 }
 
 /* ---------- oracle ---------- */
-function Oracle({ onOffer }: { onOffer: (k: OfferKey) => void }) {
+function Oracle() {
   const [q, setQ] = useState("");
   const [a, setA] = useState("");
   const [typed, setTyped] = useState("");
@@ -314,7 +313,6 @@ function Oracle({ onOffer }: { onOffer: (k: OfferKey) => void }) {
       {a && (
         <>
           <p className="mt-5 min-h-12 text-sm italic text-foreground/90">“{typed}”</p>
-          {typed === a && <LockedSeal text={<>🔒 The vision was <b>sealed by the guides</b>. The full answer with 3 release steps is waiting, written in your name.</>} cta="Unseal the full answer →" onClick={() => onOffer("oracle")} />}
           <button onClick={() => { setA(""); setQ(""); }} className="mt-3 text-xs text-foreground/50 underline">Ask another question</button>
         </>
       )}
@@ -368,7 +366,7 @@ function Vault({ onOffer }: { onOffer: (k: OfferKey) => void }) {
           <span className="text-xl">📜</span><div><p className="font-display text-gold">{t}</p><p className="text-[11px] text-foreground/60">Unlocked</p></div>
         </div>
       ))}
-      <h2 className="pt-6 text-center font-display text-xl text-gold">Sealed Portals</h2>
+      <h2 className="pt-6 text-center font-display text-xl text-gold">Go Deeper (optional)</h2>
       {locked.map((k) => {
         const o = OFFERS[k];
         return (
