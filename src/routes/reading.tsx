@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CosmicShell } from "../components/CosmicShell";
+import readingVsl from "@/assets/reading_vsl.mp4.asset.json";
 
 export const Route = createFileRoute("/reading")({
   head: () => ({
@@ -23,10 +24,9 @@ export const Route = createFileRoute("/reading")({
   component: ReadingPage,
 });
 
-const HLS_STREAM_URL =
-  "https://cdn.converteai.net/b19b3a18-f0ae-4145-b71e-287227ee922b/6ae8d8b2c7321bec2b42a664/main.m3u8";
+const VSL_VIDEO_URL = readingVsl.url;
 const POSTER_IMAGE = "/images/poster.jpg";
-const CHECKOUT_URL = "https://pay.cakto.com.br/35bnw5j_1281465";
+const CHECKOUT_URL = "#checkout-front-27";
 // Second of the video where the pitch starts and the checkout button is revealed.
 const PITCH_SECONDS = 1076; // 17:56 — the $27 price is said.
 const PROGRESS_KEY = "vsl-progress";
@@ -42,32 +42,15 @@ function VideoPlayer({ onPitch }: { onPitch: () => void }) {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    let hls: { destroy: () => void } | null = null;
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = HLS_STREAM_URL;
-    } else {
-      import("hls.js").then(({ default: Hls }) => {
-        if (!Hls.isSupported()) return;
-        const h = new Hls({ capLevelToPlayerSize: true });
-        h.loadSource(HLS_STREAM_URL);
-        h.attachMedia(video);
-        h.on(Hls.Events.ERROR, (_e, data) => {
-          if (!data.fatal) return;
-          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) h.startLoad();
-          else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) h.recoverMediaError();
-        });
-        hls = h;
-      });
-    }
+    video.src = VSL_VIDEO_URL;
     video.muted = true;
     video.play().catch(() => {});
-    return () => hls?.destroy();
   }, []);
 
   const handleTime = () => {
     const v = videoRef.current;
     if (!v || !v.duration) return;
-    // VTurb-style progress: moves fast at the start, slower later.
+    // Smart progress: moves fast at the start, slower later.
     setProgress(Math.pow(v.currentTime / v.duration, 0.5) * 100);
     if (started) localStorage.setItem(PROGRESS_KEY, String(v.currentTime));
     if (!pitchFired.current && v.currentTime >= PITCH_SECONDS) {
