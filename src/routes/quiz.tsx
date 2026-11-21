@@ -6,6 +6,7 @@ import vslQ2 from "@/assets/reader-q2.mp4.asset.json";
 import vslQ3 from "@/assets/reader-q3.mp4.asset.json";
 import vslQ4 from "@/assets/reader-q4.mp4.asset.json";
 import vslQ5 from "@/assets/reader-q5.mp4.asset.json";
+import nameIntro from "@/assets/reader_name_intro.mp4.asset.json";
 import ambientMusic from "@/assets/ambient_acoustic.mp3.asset.json";
 
 const VSL_VIDEOS = [vslQ1.url, vslQ2.url, vslQ3.url, vslQ4.url, vslQ5.url];
@@ -109,6 +110,7 @@ const CARD_IMAGES: Record<string, string> = {
 };
 
 type QuizStep =
+  | { kind: "name" }
   | { kind: "question"; index: number }
   | { kind: "loading" }
   | { kind: "intro" }
@@ -119,7 +121,7 @@ function calculateProgress(index: number) {
 }
 
 function QuizPage() {
-  const [step, setStep] = useState<QuizStep>({ kind: "question", index: 0 });
+  const [step, setStep] = useState<QuizStep>({ kind: "name" });
   const [fading, setFading] = useState(false);
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const [allMuted, setAllMuted] = useState(false);
@@ -150,6 +152,15 @@ function QuizPage() {
   return (
     <CosmicShell>
       <div className={`flex w-full flex-col items-center ${fading ? "fade-out" : ""}`}>
+        {step.kind === "name" && (
+          <NameStep
+            onStart={startMusic}
+            initialMuted={allMuted}
+            onMuteChange={(m) => { setAllMuted(m); if (musicRef.current) musicRef.current.muted = m; }}
+            onSubmit={() => transitionTo({ kind: "question", index: 0 })}
+          />
+        )}
+
         {step.kind === "question" && (
           <QuestionStep
             key={stepKey}
@@ -185,6 +196,113 @@ function QuizPage() {
         {step.kind === "deck" && <DeckStep key={stepKey} />}
       </div>
     </CosmicShell>
+  );
+}
+
+const NAME_LOOP_FROM = 7;
+
+function NameStep({
+  onStart,
+  onSubmit,
+  onMuteChange,
+  initialMuted,
+}: {
+  onStart: () => void;
+  onSubmit: () => void;
+  onMuteChange: (muted: boolean) => void;
+  initialMuted: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [muted, setMuted] = useState(initialMuted);
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    onStart();
+    v.muted = initialMuted;
+    v.play().catch(() => {
+      v.muted = true;
+      setMuted(true);
+      v.play().catch(() => {});
+    });
+  }, []);
+
+  // After she finishes speaking, keep her shuffling silently while the visitor types.
+  const handleEnded = () => {
+    const v = videoRef.current;
+    setShowForm(true);
+    if (!v) return;
+    v.muted = true;
+    v.currentTime = NAME_LOOP_FROM;
+    v.play().catch(() => {});
+  };
+
+  const toggleMute = () => {
+    const next = !muted;
+    setMuted(next);
+    onMuteChange(next);
+    if (videoRef.current && !showForm) videoRef.current.muted = next;
+  };
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = name.trim();
+    if (!clean) return;
+    try { sessionStorage.setItem("reader_name", clean); } catch {}
+    onSubmit();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-center" style={{ background: "var(--background)" }}>
+      <div className="fade-in relative h-full w-full max-w-[480px] overflow-hidden">
+        <video
+          ref={videoRef}
+          src={nameIntro.url}
+          playsInline
+          preload="auto"
+          onEnded={handleEnded}
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "50% top", WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%)", maskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%)" }}
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-background via-background/60 to-transparent" />
+
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-background/70 text-lg cursor-pointer"
+        >
+          {muted ? "🔇" : "🔊"}
+        </button>
+
+        {!showForm && (
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap font-display text-sm uppercase tracking-[0.25em] text-gold">
+            Your reader is speaking <span className="animate-pulse">•••</span>
+          </div>
+        )}
+
+        {showForm && (
+          <form onSubmit={submit} className="fade-in absolute inset-x-0 bottom-0 flex flex-col gap-3 px-4 pb-8">
+            <p className="text-center font-display text-lg leading-snug text-foreground">
+              The cards are being shuffled for you.
+              <br />
+              <span className="font-semibold text-gold">Type your first name to connect your energy.</span>
+            </p>
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your first name"
+              maxLength={30}
+              className="w-full rounded-xl border-2 border-gold/70 bg-foreground/90 px-4 py-4 text-center font-display text-xl text-background placeholder:text-background/50 outline-none"
+            />
+            <button type="submit" disabled={!name.trim()} className="h-16 w-full bg-gold-gradient text-[15px] font-medium uppercase tracking-[0.04em] text-primary-foreground shadow-cta transition-opacity disabled:opacity-60 cursor-pointer">Reveal my first card →</button>
+          </form>
+        )}
+      </div>
+    </div>
   );
 }
 
