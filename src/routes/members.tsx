@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PORTALS, PortalBody } from "@/components/sanctuary/Portals";
-import { loadOwned, type Product } from "@/lib/entitlements";
+import { loadOwned, isAdmin, enterAdmin, exitAdmin, setAdminView, type Product } from "@/lib/entitlements";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 export const Route = createFileRoute("/members")({
@@ -129,9 +129,19 @@ function Sanctuary() {
   const [toast, setToast] = useState(false);
   const [owned, setOwned] = useState<Product[]>(["front"]);
   const [portal, setPortal] = useState<Product | null>(null);
+  const [admin, setAdmin] = useState(false);
+  const [panel, setPanel] = useState(false);
+  const taps = useRef<number[]>([]);
+  const secretTap = () => {
+    const now = Date.now(); taps.current = [...taps.current.filter((t) => now - t < 1500), now];
+    if (taps.current.length < 3) return; taps.current = [];
+    if (isAdmin()) { setPanel((v) => !v); return; }
+    const c = window.prompt("✦"); if (c && enterAdmin(c)) { setAdmin(true); setPanel(true); setOwned(loadOwned()); }
+  };
+  const view = (v: Product[] | null) => { setAdminView(v); setOwned(loadOwned()); setPortal(null); setTab("portals"); };
 
   useEffect(() => {
-    setOwned(loadOwned());
+    setOwned(loadOwned()); setAdmin(isAdmin());
     const n = sessionStorage.getItem("reader_name"); if (n) setName(n);
     const today = new Date().toDateString();
     const last = localStorage.getItem("sx_last"); let s = Number(localStorage.getItem("sx_streak") || "0");
@@ -157,7 +167,21 @@ function Sanctuary() {
       )}
 
       <header className="relative px-5 pt-8 text-center">
-        <p className="text-[10px] uppercase tracking-[0.35em] text-foreground/60">Sacred Sanctuary</p>
+        <p onClick={secretTap} className="select-none text-[10px] uppercase tracking-[0.35em] text-foreground/60">Sacred Sanctuary</p>
+        {admin && panel && (
+          <div className="mx-auto mt-3 max-w-xs rounded-2xl border border-gold/40 bg-card/95 p-3 text-left text-xs shadow-gold">
+            <p className="mb-2 text-center font-display text-gold">👑 Owner panel · only you see this</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => view(null)} className="rounded-lg bg-gold-gradient px-2 py-2 text-primary-foreground">All unlocked</button>
+              <button onClick={() => view([])} className="rounded-lg border border-gold/30 px-2 py-2">Front only</button>
+              <button onClick={() => view(["love"])} className="rounded-lg border border-gold/30 px-2 py-2">+ Love</button>
+              <button onClick={() => view(["prosperity"])} className="rounded-lg border border-gold/30 px-2 py-2">+ Prosperity</button>
+              <button onClick={() => view(["shield"])} className="rounded-lg border border-gold/30 px-2 py-2">+ Shield</button>
+              <button onClick={() => setPanel(false)} className="rounded-lg border border-gold/30 px-2 py-2">Hide panel</button>
+            </div>
+            <button onClick={() => { exitAdmin(); setAdmin(false); setPanel(false); setOwned(loadOwned()); }} className="mt-2 w-full text-center text-[10px] text-foreground/50 underline">Leave owner mode on this device</button>
+          </div>
+        )}
         <h1 className="mt-1 font-display text-3xl text-gold">Welcome, {name}</h1>
         <div className="mx-auto mt-4 flex max-w-xs items-center gap-3 rounded-full border border-gold/25 bg-card/70 px-4 py-2 text-[11px]">
           <span>🔥 Day {streak}/7</span>
