@@ -7,6 +7,7 @@ import vslQ3 from "@/assets/reader-q3.mp4.asset.json";
 import vslQ4 from "@/assets/reader-q4.mp4.asset.json";
 import vslQ5 from "@/assets/reader-q5.mp4.asset.json";
 import nameIntro from "@/assets/reader_name_intro.mp4.asset.json";
+import shuffleLoop from "@/assets/reader_shuffle_loop.mp4.asset.json";
 import ambientMusic from "@/assets/ambient_acoustic.mp3.asset.json";
 
 const VSL_VIDEOS = [vslQ1.url, vslQ2.url, vslQ3.url, vslQ4.url, vslQ5.url];
@@ -199,7 +200,6 @@ function QuizPage() {
   );
 }
 
-const NAME_LOOP_FROM = 7;
 
 function NameStep({
   onStart,
@@ -235,7 +235,8 @@ function NameStep({
     setShowForm(true);
     if (!v) return;
     v.muted = true;
-    v.currentTime = NAME_LOOP_FROM;
+    v.loop = true;
+    v.src = shuffleLoop.url;
     v.play().catch(() => {});
   };
 
@@ -262,10 +263,11 @@ function NameStep({
           src={nameIntro.url}
           playsInline
           preload="auto"
-          onEnded={handleEnded}
+          onEnded={showForm ? undefined : handleEnded}
           className="absolute inset-0 h-full w-full object-cover"
           style={{ objectPosition: "50% top", WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%)", maskImage: "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%)" }}
         />
+        <link rel="preload" as="video" href={shuffleLoop.url} />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-background via-background/60 to-transparent" />
 
         <button
