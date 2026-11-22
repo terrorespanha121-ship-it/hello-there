@@ -16,9 +16,9 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
         if (type !== "payment.succeeded") return new Response("ignored");
 
         const d = evt.data ?? {};
-        const planId: string | undefined = d.plan?.id ?? d.plan_id;
+        const planId: string | undefined = d.variant_id ?? d.line_items?.[0]?.variant_id ?? d.plan?.id ?? d.plan_id;
         const product = planId ? PLAN_TO_PRODUCT[planId] : undefined;
-        const email: string | undefined = d.user?.email ?? d.email;
+        const email: string | undefined = d.customer_email ?? d.user?.email ?? d.email;
         if (!product || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
           console.log("whop webhook: skipped", planId);
           return new Response("skipped");

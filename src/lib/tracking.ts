@@ -55,13 +55,13 @@ export function initTracking() {
     document.head.appendChild(t);
   }
   w.fbq("init", META_PIXEL_ID);
-  w.fbq("track", "PageView");
+  sendEvent("PageView");
   // Rewrite Whop checkout links at click time so UTMs reach the sale.
   document.addEventListener("click", (e) => {
     const a = (e.target as HTMLElement)?.closest?.("a[href*='whop.com/checkout']") as HTMLAnchorElement | null;
     if (!a) return;
     a.href = decorateCheckout(a.href);
-    w.fbq("track", "InitiateCheckout");
+    sendEvent("InitiateCheckout");
   }, true);
 }
 
@@ -76,6 +76,17 @@ export function restoreUrlUtms() {
   } catch {}
 }
 
+// Same event_id goes to the Pixel and to our server (Meta CAPI) so Meta counts each event once.
+function sendEvent(name: "PageView" | "InitiateCheckout") {
+  const id = `${name}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  (window as any).fbq?.("track", name, {}, { eventID: id });
+  try {
+    const body = JSON.stringify({ event_name: name, event_id: id, url: window.location.href, fbp: cookie("_fbp"), fbc: cookie("_fbc") });
+    if (!navigator.sendBeacon?.("/api/public/meta-capi", new Blob([body], { type: "application/json" })))
+      fetch("/api/public/meta-capi", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
+  } catch {}
+}
+
 export function trackPageView() {
-  (window as any).fbq?.("track", "PageView");
+  sendEvent("PageView");
 }

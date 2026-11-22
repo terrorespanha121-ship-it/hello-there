@@ -154,7 +154,7 @@ export async function sendUtmify(o: { orderId: string; planId: string; product: 
       createdAt: fmt(o.created), approvedDate: fmt(o.created), refundedAt: null,
       customer: { name: o.name, email: o.email, phone: null, document: null, ...(o.country ? { country: o.country } : {}) },
       products: [{ id: o.product, name: INFO[o.product].title, planId: o.planId, planName: INFO[o.product].title, quantity: 1, priceInCents: cents }],
-      trackingParameters: { src: o.tk["src"], sck: o.tk["sck"], utm_source: o.tk["utm_source"], utm_campaign: o.tk["utm_campaign"], utm_medium: o.tk["utm_medium"], utm_content: o.tk["utm_content"], utm_term: o.tk["utm_term"] },
+      trackingParameters: { src: o.tk["src"] ?? null, sck: o.tk["sck"] ?? null, utm_source: o.tk["utm_source"] ?? null, utm_campaign: o.tk["utm_campaign"] ?? null, utm_medium: o.tk["utm_medium"] ?? null, utm_content: o.tk["utm_content"] ?? null, utm_term: o.tk["utm_term"] ?? null },
       commission: { totalPriceInCents: cents, gatewayFeeInCents: 0, userCommissionInCents: cents, currency: "USD" },
     }),
   });
