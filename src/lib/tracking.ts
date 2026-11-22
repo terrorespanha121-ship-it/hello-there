@@ -62,6 +62,20 @@ export function initTracking() {
     if (!a) return;
     a.href = decorateCheckout(a.href);
     sendEvent("InitiateCheckout");
+    const m = a.href.match(/whop\.com\/checkout\/(ch_[A-Za-z0-9]+)/);
+    if (!m) return;
+    e.preventDefault(); e.stopPropagation();
+    const fallback = a.href;
+    const newTab = a.target === "_blank" ? window.open("about:blank", "_blank") : null;
+    const go = (url: string) => { if (newTab) newTab.location.href = url; else window.location.href = url; };
+    const tracking: Record<string, string> = { ...readStored() };
+    const fbp = cookie("_fbp"); const fbc = cookie("_fbc");
+    if (fbp) tracking["fbp"] = fbp;
+    if (fbc) tracking["fbc"] = fbc;
+    const timer = setTimeout(() => go(fallback), 4000);
+    fetch("/api/public/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: m[1], tracking }) })
+      .then((r) => r.json()).then((d) => { clearTimeout(timer); go(d?.url ? decorateCheckout(d.url) : fallback); })
+      .catch(() => { clearTimeout(timer); go(fallback); });
   }, true);
 }
 

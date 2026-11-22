@@ -17,6 +17,7 @@ import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as UpsellLoveRouteImport } from './routes/upsell-love'
 import { Route as UpsellProsperityRouteImport } from './routes/upsell-prosperity'
 import { Route as UpsellShieldRouteImport } from './routes/upsell-shield'
+import { Route as ApiPublicCheckoutRouteImport } from './routes/api/public/checkout'
 import { Route as ApiPublicMetaCapiRouteImport } from './routes/api/public/meta-capi'
 import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 
@@ -60,6 +61,11 @@ const UpsellShieldRoute = UpsellShieldRouteImport.update({
   path: '/upsell-shield',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCheckoutRoute = ApiPublicCheckoutRouteImport.update({
+  id: '/api/public/checkout',
+  path: '/api/public/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMetaCapiRoute = ApiPublicMetaCapiRouteImport.update({
   id: '/api/public/meta-capi',
   path: '/api/public/meta-capi',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
   '/upsell-shield': typeof UpsellShieldRoute
+  '/api/public/checkout': typeof ApiPublicCheckoutRoute
   '/api/public/meta-capi': typeof ApiPublicMetaCapiRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
   '/upsell-shield': typeof UpsellShieldRoute
+  '/api/public/checkout': typeof ApiPublicCheckoutRoute
   '/api/public/meta-capi': typeof ApiPublicMetaCapiRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/upsell-love': typeof UpsellLoveRoute
   '/upsell-prosperity': typeof UpsellProsperityRoute
   '/upsell-shield': typeof UpsellShieldRoute
+  '/api/public/checkout': typeof ApiPublicCheckoutRoute
   '/api/public/meta-capi': typeof ApiPublicMetaCapiRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/upsell-love'
     | '/upsell-prosperity'
     | '/upsell-shield'
+    | '/api/public/checkout'
     | '/api/public/meta-capi'
     | '/api/public/whop-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/upsell-love'
     | '/upsell-prosperity'
     | '/upsell-shield'
+    | '/api/public/checkout'
     | '/api/public/meta-capi'
     | '/api/public/whop-webhook'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/upsell-love'
     | '/upsell-prosperity'
     | '/upsell-shield'
+    | '/api/public/checkout'
     | '/api/public/meta-capi'
     | '/api/public/whop-webhook'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   UpsellLoveRoute: typeof UpsellLoveRoute
   UpsellProsperityRoute: typeof UpsellProsperityRoute
   UpsellShieldRoute: typeof UpsellShieldRoute
+  ApiPublicCheckoutRoute: typeof ApiPublicCheckoutRoute
   ApiPublicMetaCapiRoute: typeof ApiPublicMetaCapiRoute
   ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
 }
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UpsellShieldRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/checkout': {
+      id: '/api/public/checkout'
+      path: '/api/public/checkout'
+      fullPath: '/api/public/checkout'
+      preLoaderRoute: typeof ApiPublicCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/meta-capi': {
       id: '/api/public/meta-capi'
       path: '/api/public/meta-capi'
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   UpsellLoveRoute: UpsellLoveRoute,
   UpsellProsperityRoute: UpsellProsperityRoute,
   UpsellShieldRoute: UpsellShieldRoute,
+  ApiPublicCheckoutRoute: ApiPublicCheckoutRoute,
   ApiPublicMetaCapiRoute: ApiPublicMetaCapiRoute,
   ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,
 }
