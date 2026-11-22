@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { initTracking, trackPageView } from "../lib/tracking";
+import { initTracking, trackPageView, restoreUrlUtms } from "../lib/tracking";
 
 function NotFoundComponent() {
   return (
@@ -131,7 +131,7 @@ function RootComponent() {
   const router = useRouter();
   useEffect(() => {
     initTracking();
-    return router.subscribe("onResolved", (e) => { if (e.pathChanged) trackPageView(); });
+    return router.subscribe("onResolved", (e) => { if (e.pathChanged) { restoreUrlUtms(); trackPageView(); } });
   }, [router]);
 
   return (

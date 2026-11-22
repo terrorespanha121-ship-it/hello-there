@@ -35,6 +35,7 @@ export function initTracking() {
   if (typeof window === "undefined" || (window as any).__sxTrack) return;
   (window as any).__sxTrack = true;
   captureUtms();
+  restoreUrlUtms();
   // Utmify UTM script (official snippet, decoded).
   if (!document.querySelector("script[src*='cdn.utmify.com.br']")) {
     const u = document.createElement("script");
@@ -62,6 +63,17 @@ export function initTracking() {
     a.href = decorateCheckout(a.href);
     w.fbq("track", "InitiateCheckout");
   }, true);
+}
+
+// Keep UTMs visible in the address bar on every page so the Utmify script always sees them.
+export function restoreUrlUtms() {
+  try {
+    const s = readStored();
+    const u = new URL(window.location.href);
+    let changed = false;
+    for (const [k, v] of Object.entries(s)) if (!u.searchParams.has(k)) { u.searchParams.set(k, v); changed = true; }
+    if (changed) window.history.replaceState(window.history.state, "", u.toString());
+  } catch {}
 }
 
 export function trackPageView() {
