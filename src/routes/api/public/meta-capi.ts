@@ -8,13 +8,14 @@ export const Route = createFileRoute("/api/public/meta-capi")({
     handlers: {
       POST: async ({ request }) => {
         const token = process.env["FB_CAPI_TOKEN"];
-        if (!token) return new Response("not configured", { status: 500 });
+        // Fire-and-forget beacon: never fail the page; quietly skip when not configured (e.g. preview).
+        if (!token) return new Response(null, { status: 204 });
         let b: any;
-        try { b = await request.json(); } catch { return new Response("bad", { status: 400 }); }
+        try { b = JSON.parse(await request.text()); } catch { return new Response(null, { status: 204 }); }
         const name = String(b?.event_name ?? "");
         const id = String(b?.event_id ?? "").slice(0, 100);
         const url = String(b?.url ?? "").slice(0, 500);
-        if (!ALLOWED.has(name) || !id || !url.startsWith("https://little-idea-big-world.lovable.app")) return new Response("bad", { status: 400 });
+        if (!ALLOWED.has(name) || !id || !url.startsWith("https://little-idea-big-world.lovable.app")) return new Response(null, { status: 204 });
         const { META_PIXEL_ID } = await import("@/lib/whop-webhook.server");
         const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
         const user_data: Record<string, unknown> = {
@@ -23,12 +24,15 @@ export const Route = createFileRoute("/api/public/meta-capi")({
           fbp: typeof b.fbp === "string" ? b.fbp.slice(0, 200) : undefined,
           fbc: typeof b.fbc === "string" ? b.fbc.slice(0, 300) : undefined,
         };
+        try {
         const res = await fetch(`https://graph.facebook.com/v21.0/${META_PIXEL_ID}/events?access_token=${encodeURIComponent(token)}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ data: [{ event_name: name, event_time: Math.floor(Date.now() / 1000), event_id: id, action_source: "website", event_source_url: url, user_data: JSON.parse(JSON.stringify(user_data)) }] }),
         });
-        return new Response(res.ok ? "ok" : "fail", { status: res.ok ? 200 : 502 });
+        if (!res.ok) console.error("meta-capi failed", res.status, await res.text());
+        } catch (e) { console.error("meta-capi error", e); }
+        return new Response(null, { status: 204 });
       },
     },
   },
